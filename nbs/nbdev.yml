@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "cachy"
+  site-url: "https://AnswerDotAI.github.io/cachy"
+  description: "Cache your API calls and make your notebooks fast again"
+  repo-branch: main
+  repo-url: "https://github.com/AnswerDotAI/cachy"
