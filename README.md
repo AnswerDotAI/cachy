@@ -29,14 +29,17 @@ caching mechanism:
 
 To use `cachy`
 
-- install the package: `pip install pycachy`
-- add the snippet below to the top of your notebook
+1.  Install the package: `pip install pycachy`
+2.  Add this snippet at to the top of your notebook:
 
 ``` python
 from cachy import enable_cachy
-
 enable_cachy()
 ```
+
+3.  Add the rest of your imports below the
+    [`enable_cachy()`](https://AnswerDotAI.github.io/cachy/core.html#enable_cachy)
+    line
 
 By default `cachy` will cache requests made to OpenAI, Anthropic, Gemini
 and DeepSeek.

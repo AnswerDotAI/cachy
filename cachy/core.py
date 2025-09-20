@@ -57,8 +57,42 @@ def _apply_sync_patch(cfp, doms):
         return httpx.Response(status_code=res.status_code, content=content, request=r)
 
 # %% ../nbs/00_core.ipynb
+def _apply_litellm_patch():
+    try: import litellm
+    except ImportError: return  
+    
+    @patch
+    def __init__(self:litellm.ModelResponseStream, *args, **kwargs):
+        result = self._orig___init__(*args, **kwargs)
+        self.id,self.created  = 'cachy-dummy-id',1
+        return result
+    
+    @patch
+    def __init__(self:litellm.ModelResponse, *args, **kwargs):
+        result = self._orig___init__(*args, **kwargs)
+        self.id,self.created  = 'cachy-dummy-id',1
+        return result
+    
+    original_completion = litellm.completion
+    def wrapped_completion(*args, **kwargs):
+        res = original_completion(*args, **kwargs)
+        if hasattr(res, 'id'): res.id = 'cachy-dummy-id'
+        if hasattr(res, 'created'): res.created = 1
+        return res
+    litellm.completion = wrapped_completion
+    
+    original_acompletion = litellm.acompletion
+    async def wrapped_acompletion(*args, **kwargs):
+        res = await original_acompletion(*args, **kwargs)
+        if hasattr(res, 'id'): res.id = 'cachy-dummy-id'
+        if hasattr(res, 'created'): res.created = 1
+        return res
+    litellm.acompletion = wrapped_acompletion
+
+# %% ../nbs/00_core.ipynb
 def enable_cachy(cache_dir=None, doms=doms):
     cfp = Path(cache_dir or getattr(Config.find("settings.ini"), "config_path", ".")) / "cachy.jsonl"
     cfp.touch(exist_ok=True)   
     _apply_sync_patch(cfp, doms)
     _apply_async_patch(cfp, doms)
+    _apply_litellm_patch()
