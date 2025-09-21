@@ -5,32 +5,32 @@
 # %% auto 0
 __all__ = ['doms', 'enable_cachy']
 
-# %% ../nbs/00_core.ipynb 7
+# %% ../nbs/00_core.ipynb
 import hashlib,httpx,json
 from fastcore.utils import *
 
-# %% ../nbs/00_core.ipynb 13
+# %% ../nbs/00_core.ipynb
 doms = ("api.openai.com", "api.anthropic.com", "generativelanguage.googleapis.com", "api.deepseek.com")
 
-# %% ../nbs/00_core.ipynb 14
+# %% ../nbs/00_core.ipynb
 def _should_cache(url, doms): return any(dom in str(url) for dom in doms)
 
-# %% ../nbs/00_core.ipynb 30
+# %% ../nbs/00_core.ipynb
 def _cache(key, cfp):
     with open(cfp, "r") as f:
         line = first(f, lambda l: json.loads(l)["key"] == key)
         return json.loads(line)["response"] if line else None
 
-# %% ../nbs/00_core.ipynb 31
+# %% ../nbs/00_core.ipynb
 def _write_cache(key, content, cfp):
     with open(cfp, "a") as f: f.write(json.dumps({"key":key, "response": content})+"\n")
 
-# %% ../nbs/00_core.ipynb 36
+# %% ../nbs/00_core.ipynb
 def _key(r, is_stream=False):
     "Create a unique, deterministic id from the request `r`."
     return hashlib.sha256(f"{r.url.host}{is_stream}".encode() + r.content).hexdigest()[:8]
 
-# %% ../nbs/00_core.ipynb 50
+# %% ../nbs/00_core.ipynb
 def _apply_async_patch(cfp, doms):    
     @patch
     async def send(self:httpx._client.AsyncClient, r, **kwargs):
@@ -43,7 +43,7 @@ def _apply_async_patch(cfp, doms):
         _write_cache(key, content, cfp)
         return httpx.Response(status_code=res.status_code, content=content, request=r)
 
-# %% ../nbs/00_core.ipynb 52
+# %% ../nbs/00_core.ipynb
 def _apply_sync_patch(cfp, doms):    
     @patch
     def send(self:httpx._client.Client, r, **kwargs):
@@ -56,7 +56,7 @@ def _apply_sync_patch(cfp, doms):
         _write_cache(key,content,cfp)
         return httpx.Response(status_code=res.status_code, content=content, request=r)
 
-# %% ../nbs/00_core.ipynb 54
+# %% ../nbs/00_core.ipynb
 def enable_cachy(cache_dir=None, doms=doms):
     cfp = Path(cache_dir or getattr(Config.find("settings.ini"), "config_path", ".")) / "cachy.jsonl"
     cfp.touch(exist_ok=True)   
