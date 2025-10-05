@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.2.post1
+
+### New Features
+
+- update docs
+
+
 ## 0.0.2
 
 ### New Features
