@@ -4,6 +4,6 @@ project:
 website:
   title: "cachy"
   site-url: "https://AnswerDotAI.github.io/cachy"
-  description: "Cache your API calls and make your notebooks fast again"
+  description: "Cache your API calls with a single line of code. No mocks, no fixtures. Just faster, cleaner code."
   repo-branch: main
   repo-url: "https://github.com/AnswerDotAI/cachy"
