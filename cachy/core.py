@@ -6,7 +6,7 @@
 __all__ = ['doms', 'enable_cachy', 'disable_cachy']
 
 # %% ../nbs/00_core.ipynb
-import hashlib,httpx,json
+import hashlib,httpx,json,re
 from fastcore.utils import *
 
 # %% ../nbs/00_core.ipynb
@@ -26,9 +26,17 @@ def _write_cache(key, content, cfp):
     with open(cfp, "a") as f: f.write(json.dumps({"key":key, "response": content})+"\n")
 
 # %% ../nbs/00_core.ipynb
+def _norm_multipart(r):
+    ct = r.headers.get('content-type', '')
+    match = re.search(r'boundary=([a-f0-9]{32})', ct)
+    if match: return r.content.replace(match.group(1).encode(), b'BOUNDARY')
+    return r.content
+
+# %% ../nbs/00_core.ipynb
 def _key(r, is_stream=False):
     "Create a unique, deterministic id from the request `r`."
-    return hashlib.sha256(f"{r.url.host}{is_stream}".encode() + r.content).hexdigest()[:8]
+    r.read()
+    return hashlib.sha256(f"{r.url.host}{is_stream}".encode() + _norm_multipart(r)).hexdigest()[:8]
 
 # %% ../nbs/00_core.ipynb
 def _apply_async_patch(cfp, doms):    
