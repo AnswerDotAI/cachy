@@ -26,9 +26,16 @@ def _write_cache(key, content, cfp):
     with open(cfp, "a") as f: f.write(json.dumps({"key":key, "response": content})+"\n")
 
 # %% ../nbs/00_core.ipynb
+def _content(r):
+    "Extract content from request."
+    if not hasattr(r, '_content'): r.read()
+    boundary = httpx._multipart.get_multipart_boundary_from_content_type(r.headers.get("Content-Type", "").encode())
+    return r.content.replace(boundary, b"cachy-boundary") if boundary else r.content
+
+# %% ../nbs/00_core.ipynb
 def _key(r, is_stream=False):
     "Create a unique, deterministic id from the request `r`."
-    return hashlib.sha256(f"{r.url.host}{is_stream}".encode() + r.content).hexdigest()[:8]
+    return hashlib.sha256(f"{r.url.host}{is_stream}".encode() + _content(r)).hexdigest()[:8]
 
 # %% ../nbs/00_core.ipynb
 def _apply_async_patch(cfp, doms):    
