@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Cache your API calls with a single line of code. No mocks, no fixtures. Just faster, cleaner code.">
+
+<title>core – pycachy</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-000f0825b9c55ed21d14970d810c14a9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="core – pycachy">
+<meta property="og:description" content="Cache your API calls with a single line of code. No mocks, no fixtures. Just faster, cleaner code.">
+<meta property="og:site_name" content="pycachy">
+<meta name="twitter:title" content="core – pycachy">
+<meta name="twitter:description" content="Cache your API calls with a single line of code. No mocks, no fixtures. Just faster, cleaner code.">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">pycachy</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./core.html">core</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">cachy</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./core.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">core</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#patching-httpx" id="toc-patching-httpx" class="nav-link" data-scroll-target="#patching-httpx">Patching <code>httpx</code></a></li>
+  <li><a href="#cache-filtering" id="toc-cache-filtering" class="nav-link" data-scroll-target="#cache-filtering">Cache Filtering</a></li>
+  <li><a href="#cache-key" id="toc-cache-key" class="nav-link" data-scroll-target="#cache-key">Cache Key</a></li>
+  <li><a href="#cache-readswrites" id="toc-cache-readswrites" class="nav-link" data-scroll-target="#cache-readswrites">Cache Reads/Writes</a></li>
+  <li><a href="#multipart-requests" id="toc-multipart-requests" class="nav-link" data-scroll-target="#multipart-requests">Multipart Requests</a></li>
+  <li><a href="#streaming" id="toc-streaming" class="nav-link" data-scroll-target="#streaming">Streaming</a></li>
+  <li><a href="#enable_cachy" id="toc-enable_cachy" class="nav-link" data-scroll-target="#enable_cachy"><code>enable_cachy</code></a></li>
+  <li><a href="#async" id="toc-async" class="nav-link" data-scroll-target="#async">Async</a></li>
+  <li><a href="#enable_cachy-1" id="toc-enable_cachy-1" class="nav-link" data-scroll-target="#enable_cachy-1">enable_cachy</a></li>
+  <li><a href="#disable_cachy" id="toc-disable_cachy" class="nav-link" data-scroll-target="#disable_cachy">disable_cachy</a></li>
+  <li><a href="#tests" id="toc-tests" class="nav-link" data-scroll-target="#tests">Tests</a>
+  <ul class="collapse">
+  <li><a href="#openai" id="toc-openai" class="nav-link" data-scroll-target="#openai">OpenAI</a></li>
+  <li><a href="#anthropic" id="toc-anthropic" class="nav-link" data-scroll-target="#anthropic">Anthropic</a></li>
+  <li><a href="#litellm" id="toc-litellm" class="nav-link" data-scroll-target="#litellm">LiteLLM</a></li>
+  <li><a href="#multipart-request" id="toc-multipart-request" class="nav-link" data-scroll-target="#multipart-request">Multipart Request</a></li>
+  <li><a href="#gemini-model-comparison" id="toc-gemini-model-comparison" class="nav-link" data-scroll-target="#gemini-model-comparison">Gemini Model Comparison</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/AnswerDotAI/cachy/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="core.html.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">core</h1>
+</div>
+
+<div>
+  <div class="description">
+    Cache your API calls with a single line of code. No mocks, no fixtures. Just faster, cleaner code.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="introduction" class="level3">
+<h3 class="anchored" data-anchor-id="introduction">Introduction</h3>
+<p>We often call APIs while prototyping and testing our code. A single API call (e.g.&nbsp;an Anthropic chat completion) can take 100’s of ms to run. This can really slow down development especially if our notebook contains many API calls 😞.</p>
+<p><code>cachy</code> caches API requests. It does this by saving the result of each API call to a local <code>cachy.jsonl</code> file. Before calling an API (e.g.&nbsp;OpenAI) it will check if the request already exists in <code>cachy.jsonl</code>. If it does it will return the cached result.</p>
+<p><strong>How does it work?</strong></p>
+<p>Under the hood popular SDK’s like OpenAI, Anthropic and LiteLLM use <code>httpx.Client</code> and <code>httpx.AsyncClient</code>.</p>
+<p><code>cachy</code> patches the <code>send</code> method of both clients and injects a simple caching mechanism:</p>
+<ul>
+<li>create a cache key from the request</li>
+<li>if the key exists in <code>cachy.jsonl</code> return the cached response</li>
+<li>if not, call the API and save the response to <code>cachy.jsonl</code></li>
+</ul>
+<div id="cell-6" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> httpx <span class="im">import</span> RequestNotRead</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastcore.test <span class="im">import</span> <span class="op">*</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>cachy.jsonl</code> contains one API response per line.</p>
+<p>Each line has the following format <code>{"key": key, "response": response}</code></p>
+<ul>
+<li><code>key</code>: hash of the API request</li>
+<li><code>response</code>: the API response.</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"key"</span><span class="fu">:</span> <span class="st">"afc2be0c"</span><span class="fu">,</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"response"</span><span class="fu">:</span> <span class="st">"{</span><span class="ch">\"</span><span class="st">id</span><span class="ch">\"</span><span class="st">:</span><span class="ch">\"</span><span class="st">msg_xxx</span><span class="ch">\"</span><span class="st">,</span><span class="ch">\"</span><span class="st">type</span><span class="ch">\"</span><span class="st">:</span><span class="ch">\"</span><span class="st">message</span><span class="ch">\"</span><span class="st">,</span><span class="ch">\"</span><span class="st">role</span><span class="ch">\"</span><span class="st">:</span><span class="ch">\"</span><span class="st">assistant</span><span class="ch">\"</span><span class="st">,</span><span class="ch">\"</span><span class="st">model</span><span class="ch">\"</span><span class="st">:</span><span class="ch">\"</span><span class="st">claude-sonnet-4-20250514</span><span class="ch">\"</span><span class="st">,</span><span class="ch">\"</span><span class="st">content</span><span class="ch">\"</span><span class="st">:[{</span><span class="ch">\"</span><span class="st">type</span><span class="ch">\"</span><span class="st">:</span><span class="ch">\"</span><span class="st">text</span><span class="ch">\"</span><span class="st">,</span><span class="ch">\"</span><span class="st">text</span><span class="ch">\"</span><span class="st">:</span><span class="ch">\"</span><span class="st">Coordination.</span><span class="ch">\"</span><span class="st">}],</span><span class="ch">\"</span><span class="st">stop_reason</span><span class="ch">\"</span><span class="st">:</span><span class="ch">\"</span><span class="st">end_turn</span><span class="ch">\"</span><span class="st">,</span><span class="ch">\"</span><span class="st">stop_sequence</span><span class="ch">\"</span><span class="st">:null,</span><span class="ch">\"</span><span class="st">usage</span><span class="ch">\"</span><span class="st">:{</span><span class="ch">\"</span><span class="st">input_tokens</span><span class="ch">\"</span><span class="st">:16,</span><span class="ch">\"</span><span class="st">cache_creation_input_tokens</span><span class="ch">\"</span><span class="st">:0,</span><span class="ch">\"</span><span class="st">cache_read_input_tokens</span><span class="ch">\"</span><span class="st">:0,</span><span class="ch">\"</span><span class="st">cache_creation</span><span class="ch">\"</span><span class="st">:{</span><span class="ch">\"</span><span class="st">ephemeral_5m_input_tokens</span><span class="ch">\"</span><span class="st">:0,</span><span class="ch">\"</span><span class="st">ephemeral_1h_input_tokens</span><span class="ch">\"</span><span class="st">:0},</span><span class="ch">\"</span><span class="st">output_tokens</span><span class="ch">\"</span><span class="st">:6,</span><span class="ch">\"</span><span class="st">service_tier</span><span class="ch">\"</span><span class="st">:</span><span class="ch">\"</span><span class="st">standard</span><span class="ch">\"</span><span class="st">}}"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="patching-httpx" class="level3">
+<h3 class="anchored" data-anchor-id="patching-httpx">Patching <code>httpx</code></h3>
+<p>Patching a method is very straightforward.</p>
+<p>In our case we want to patch <code>httpx._client.Client.send</code> and <code>httpx._client.AsyncClient.send</code>.</p>
+<p>These methods are called when running <code>httpx.get</code>, <code>httpx.post</code>, etc.</p>
+<p>In the example below we use <code>@patch</code> from <a href="https://fastcore.fast.ai/">fastcore</a> to print <code>calling an API</code> when <code>httpx._client.Client.send</code> is run.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> send(<span class="va">self</span>:httpx._client.Client, r, <span class="op">**</span>kwargs):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'calling an API'</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="cache-filtering" class="level3">
+<h3 class="anchored" data-anchor-id="cache-filtering">Cache Filtering</h3>
+<p>Now, let’s build up our caching logic piece-by-piece.</p>
+<p>The first thing we need to do is ensure that our caching logic only runs on specific urls.</p>
+<p>For now, let’s only cache API calls made to popular LLM providers like OpenAI, Anthropic, Google and DeepSeek. We can make this fully customizable later.</p>
+<div id="cell-12" class="cell">
+<details open="" class="code-fold">
+<summary>Exported source</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>doms <span class="op">=</span> (<span class="st">"api.openai.com"</span>, <span class="st">"api.anthropic.com"</span>, <span class="st">"generativelanguage.googleapis.com"</span>, <span class="st">"api.deepseek.com"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-13" class="cell">
+<details open="" class="code-fold">
+<summary>Exported source</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _should_cache(url, doms): <span class="cf">return</span> <span class="bu">any</span>(dom <span class="kw">in</span> <span class="bu">str</span>(url) <span class="cf">for</span> dom <span class="kw">in</span> doms)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>We could then use <a href="https://AnswerDotAI.github.io/cachy/core.html#_should_cache"><code>_should_cache</code></a> like this.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> send(<span class="va">self</span>:httpx._client.Client, r, <span class="op">**</span>kwargs):</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> _should_cache(r.url, doms): <span class="cf">return</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># insert caching logic</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    ...</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="cache-key" class="level3">
+<h3 class="anchored" data-anchor-id="cache-key">Cache Key</h3>
+<p>The next thing we need to do is figure out if a response for the request <code>r</code> already exists in our cache.</p>
+<p>Recall that each line in <code>cachy.jsonl</code> has the following format <code>{"key": key, "response": response}</code>.</p>
+<p>Our key needs to be unique and deterministic. One way to do this is to concatenate the request URL and content, then generate a hash from the result.</p>
+<div id="cell-17" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _key(r): <span class="cf">return</span> hashlib.sha256(<span class="bu">str</span>(r.url.copy_remove_param(<span class="st">'key'</span>)).encode() <span class="op">+</span> r.content).hexdigest()[:<span class="dv">8</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>When LiteLLM calls Gemini it includes the API key in a query param so that’s why we strip the <code>key</code> param from the url.</p>
+<p>Let’s test this out.</p>
+<div id="cell-20" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>r1 <span class="op">=</span> httpx.Request(<span class="st">'POST'</span>, <span class="st">'https://api.openai.com/v1/chat/completions'</span>, content<span class="op">=</span><span class="st">b'some content'</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>r1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;Request('POST', 'https://api.openai.com/v1/chat/completions')&gt;</code></pre>
+</div>
+</div>
+<div id="cell-21" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>_key(r1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'2d135d43'</code></pre>
+</div>
+</div>
+<p>If we run it again we should get the same key.</p>
+<div id="cell-23" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>_key(r1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'2d135d43'</code></pre>
+</div>
+</div>
+<p>Let’s modify the url and confirm we get a different key.</p>
+<div id="cell-25" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>_key(httpx.Request(<span class="st">'POST'</span>, <span class="st">'https://api.anthropic.com/v1/messages'</span>, content<span class="op">=</span><span class="st">b'some content'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'8a99b0a9'</code></pre>
+</div>
+</div>
+<p>Great. Let’s update our patch.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> send(<span class="va">self</span>:httpx._client.Client, r, <span class="op">**</span>kwargs):</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> _should_cache(r.url, doms): <span class="cf">return</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    key <span class="op">=</span> _key(r)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if cache hit return the response</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># else run the request, write to response the cache and return it</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    ...</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="cache-readswrites" class="level3">
+<h3 class="anchored" data-anchor-id="cache-readswrites">Cache Reads/Writes</h3>
+<p>Now let’s add some methods that will read from and write to <code>cachy.jsonl</code>.</p>
+<div id="cell-29" class="cell">
+<details open="" class="code-fold">
+<summary>Exported source</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _cache(key, cfp):</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(cfp, <span class="st">"r"</span>) <span class="im">as</span> f:</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>        line <span class="op">=</span> first(f, <span class="kw">lambda</span> l: json.loads(l)[<span class="st">"key"</span>] <span class="op">==</span> key)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> json.loads(line)[<span class="st">"response"</span>] <span class="cf">if</span> line <span class="cf">else</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-30" class="cell">
+<details open="" class="code-fold">
+<summary>Exported source</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _write_cache(key, content, cfp):</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(cfp, <span class="st">"a"</span>) <span class="im">as</span> f: f.write(json.dumps({<span class="st">"key"</span>:key, <span class="st">"response"</span>: content})<span class="op">+</span><span class="st">"</span><span class="ch">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Let’s update our <code>patch</code>.</p>
+<div id="cell-32" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> send(<span class="va">self</span>:httpx._client.Client, r, <span class="op">**</span>kwargs):</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> _should_cache(r.url, doms): <span class="cf">return</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    key <span class="op">=</span> key(r)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> res <span class="op">:=</span> _cache(key,<span class="st">"cachy.jsonl"</span>): <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span><span class="dv">200</span>, content<span class="op">=</span>res, request<span class="op">=</span>r)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    content <span class="op">=</span> res.read().decode()</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    _write_cache(key, content, <span class="st">"cachy.jsonl"</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span>res.status_code, content<span class="op">=</span>content, request<span class="op">=</span>r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="multipart-requests" class="level3">
+<h3 class="anchored" data-anchor-id="multipart-requests">Multipart Requests</h3>
+<p><a href="https://AnswerDotAI.github.io/cachy/core.html#_key"><code>_key</code></a> will throw the following error for multipart requests (e.g.&nbsp;file uploads).</p>
+<p><code>RequestNotRead: Attempted to access streaming request content, without having called</code>read()<code>.</code></p>
+<div id="cell-35" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>rfu <span class="op">=</span> httpx.Request(<span class="st">'POST'</span>, <span class="st">'https://api.openai.com/v1/chat/completions'</span>, files<span class="op">=</span>{<span class="st">"file"</span>: (<span class="st">"test.txt"</span>, <span class="st">b"hello"</span>)})</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>rfu</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;Request('POST', 'https://api.openai.com/v1/chat/completions')&gt;</code></pre>
+</div>
+</div>
+<div id="cell-36" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>test_fail(<span class="kw">lambda</span>: _key(rfu), RequestNotRead)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-37" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>rfu.read()<span class="op">;</span> _key(rfu)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Each part of a multipart request is separated by a delimiter called a boundary with this structure <code>--b{RANDOM_ID}</code>. Here’s an example for <code>rfu</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode txt code-with-copy"><code class="sourceCode default"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>b'--f9ee33966b45cc8c80952bb57cc728c4\r\nContent-Disposition: form-data; name="file"; filename="test.txt"\r\nContent-Type: text/plain\r\n\r\nhello\r\n--f9ee33966b45cc8c80952bb57cc728c4--\r\n'</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>As the boundary is a random id, two identical multipart requests will produce different boundaries. As the boundary is part of the request content, <a href="https://AnswerDotAI.github.io/cachy/core.html#_key"><code>_key</code></a> will generate different keys leading to cache misses 😞.</p>
+<p>Let’s create a helper method <a href="https://AnswerDotAI.github.io/cachy/core.html#_content"><code>_content</code></a> that will extract content from any request and remove the non-deterministic boundary.</p>
+<div id="cell-39" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>rfu <span class="op">=</span> httpx.Request(<span class="st">'POST'</span>, <span class="st">'https://api.openai.com/v1/chat/completions'</span>, files<span class="op">=</span>{<span class="st">"file"</span>: (<span class="st">"test.txt"</span>, <span class="st">b"hello"</span>)})</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>rfu</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;Request('POST', 'https://api.openai.com/v1/chat/completions')&gt;</code></pre>
+</div>
+</div>
+<div id="cell-40" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>_content(rfu)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>b'--cachy-boundary\r\nContent-Disposition: form-data; name="file"; filename="test.txt"\r\nContent-Type: text/plain\r\n\r\nhello\r\n--cachy-boundary--\r\n'</code></pre>
+</div>
+</div>
+<div id="cell-41" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _key(r): <span class="cf">return</span> hashlib.sha256(<span class="bu">str</span>(r.url.copy_remove_param(<span class="st">'key'</span>)).encode() <span class="op">+</span> _content(r)).hexdigest()[:<span class="dv">8</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Let’s confirm that running <a href="https://AnswerDotAI.github.io/cachy/core.html#_key"><code>_key</code></a> multiple times on the same multipart request now returns the same key.</p>
+<div id="cell-43" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>_key(rfu), _key(rfu)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>('9ae79ac5', '9ae79ac5')</code></pre>
+</div>
+</div>
+</section>
+<section id="streaming" class="level3">
+<h3 class="anchored" data-anchor-id="streaming">Streaming</h3>
+<p>Let’s add support for streaming.</p>
+<p>First let’s include an <code>is_stream</code> bool in our hash so that a non-streamed request will generate a different key to the same request when streamed.</p>
+<div id="cell-46" class="cell">
+<details open="" class="code-fold">
+<summary>Exported source</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _key(r, is_stream<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Create a unique, deterministic id from the request `r`."</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> hashlib.sha256(<span class="ss">f"</span><span class="sc">{</span>r<span class="sc">.</span>url<span class="sc">.</span>copy_remove_param(<span class="st">'key'</span>)<span class="sc">}{</span>is_stream<span class="sc">}</span><span class="ss">"</span>.encode() <span class="op">+</span> _content(r)).hexdigest()[:<span class="dv">8</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>In the <code>patch</code> we need to <code>consume</code> the entire stream before writing it to the cache.</p>
+<div id="cell-48" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> send(<span class="va">self</span>:httpx._client.Client, r, <span class="op">**</span>kwargs):</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    is_stream <span class="op">=</span> kwargs.get(<span class="st">"stream"</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> _should_cache(r.url, doms): <span class="cf">return</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    key <span class="op">=</span> _key(r, is_stream<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> res <span class="op">:=</span> _cache(key,<span class="st">"cachy.jsonl"</span>): <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span><span class="dv">200</span>, content<span class="op">=</span>res, request<span class="op">=</span>r)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    content <span class="op">=</span> res.read().decode() <span class="cf">if</span> <span class="kw">not</span> is_stream <span class="cf">else</span> <span class="st">b''</span>.join(<span class="bu">list</span>(res.iter_bytes())).decode()</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    _write_cache(key, content, <span class="st">"cachy.jsonl"</span>)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span>res.status_code, content<span class="op">=</span>content, request<span class="op">=</span>r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="enable_cachy" class="level3">
+<h3 class="anchored" data-anchor-id="enable_cachy"><a href="https://AnswerDotAI.github.io/cachy/core.html#enable_cachy"><code>enable_cachy</code></a></h3>
+<p>To make <code>cachy</code> as user friendly as possible let’s make it so that we can apply our patch by running a single method at the top of our notebook.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> cachy <span class="im">import</span> enable_cachy</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>enable_cachy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For this to work we’ll need to wrap our patch.</p>
+<div id="cell-52" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _apply_patch():    </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@patch</span>    </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> send(<span class="va">self</span>:httpx._client.Client, r, <span class="op">**</span>kwargs):</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>        is_stream <span class="op">=</span> kwargs.get(<span class="st">"stream"</span>)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> _should_cache(r.url, doms): <span class="cf">return</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        key <span class="op">=</span> _key(r, is_stream<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> res <span class="op">:=</span> _cache(key,<span class="st">"cachy.jsonl"</span>): <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span><span class="dv">200</span>, content<span class="op">=</span>res, request<span class="op">=</span>r)</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>        res <span class="op">=</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        content <span class="op">=</span> res.read().decode() <span class="cf">if</span> <span class="kw">not</span> is_stream <span class="cf">else</span> <span class="st">b''</span>.join(<span class="bu">list</span>(res.iter_bytes())).decode()</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>        _write_cache(key, content, <span class="st">"cachy.jsonl"</span>)</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span>res.status_code, content<span class="op">=</span>content, request<span class="op">=</span>r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-53" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> enable_cachy():  </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    _apply_patch()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Great. Now, let’s make <code>cachy</code> a little more customizable by making it possible to specify:</p>
+<ul>
+<li>the APIs (or domains) to cache</li>
+<li>the location of the cache file.</li>
+</ul>
+<div id="cell-55" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> enable_cachy(cache_dir<span class="op">=</span><span class="va">None</span>, doms<span class="op">=</span>doms):</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    cfp <span class="op">=</span> Path(cache_dir <span class="kw">or</span> <span class="bu">getattr</span>(Config.find(<span class="st">"settings.ini"</span>), <span class="st">"config_path"</span>, <span class="st">"."</span>)) <span class="op">/</span> <span class="st">"cachy.jsonl"</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    cfp.touch(exist_ok<span class="op">=</span><span class="va">True</span>)   </span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    _apply_patch(cfp, doms)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><em>Note: If our notebook is running in an nbdev project <code>Config.find("settings.ini").config_path</code> automatically finds the base dir.</em></p>
+<div id="cell-57" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _apply_patch(cfp, doms):    </span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@patch</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> send(<span class="va">self</span>:httpx._client.Client, r, <span class="op">**</span>kwargs):</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>        is_stream <span class="op">=</span> kwargs.get(<span class="st">"stream"</span>)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> _should_cache(r.url, doms): <span class="cf">return</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>        key <span class="op">=</span> _key(r, is_stream<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> res <span class="op">:=</span> _cache(key,cfp): <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span><span class="dv">200</span>, content<span class="op">=</span>res, request<span class="op">=</span>r)</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>        res <span class="op">=</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>        content <span class="op">=</span> res.read().decode() <span class="cf">if</span> <span class="kw">not</span> is_stream <span class="cf">else</span> <span class="st">b''</span>.join(<span class="bu">list</span>(res.iter_bytes())).decode()</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>        _write_cache(key,content,cfp)</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span>res.status_code, content<span class="op">=</span>content, request<span class="op">=</span>r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="async" class="level3">
+<h3 class="anchored" data-anchor-id="async">Async</h3>
+<p>Now let’s add support for <code>async</code> requests.</p>
+<div id="cell-60" class="cell">
+<details open="" class="code-fold">
+<summary>Exported source</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _apply_async_patch(cfp, doms):    </span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@patch</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">async</span> <span class="kw">def</span> send(<span class="va">self</span>:httpx._client.AsyncClient, r, <span class="op">**</span>kwargs):</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>        is_stream <span class="op">=</span> kwargs.get(<span class="st">"stream"</span>)</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> _should_cache(r.url, doms): <span class="cf">return</span> <span class="cf">await</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>        key <span class="op">=</span> _key(r, is_stream<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> res <span class="op">:=</span> _cache(key, cfp): <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span><span class="dv">200</span>, content<span class="op">=</span>res, request<span class="op">=</span>r)</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>        res <span class="op">=</span> <span class="cf">await</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>        content <span class="op">=</span> res.read().decode() <span class="cf">if</span> <span class="kw">not</span> is_stream <span class="cf">else</span> <span class="st">b''</span>.join([c <span class="cf">async</span> <span class="cf">for</span> c <span class="kw">in</span> res.aiter_bytes()]).decode()</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>        _write_cache(key, content, cfp)</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span>res.status_code, content<span class="op">=</span>content, request<span class="op">=</span>r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Let’s rename our original patch.</p>
+<div id="cell-62" class="cell">
+<details open="" class="code-fold">
+<summary>Exported source</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _apply_sync_patch(cfp, doms):    </span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@patch</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> send(<span class="va">self</span>:httpx._client.Client, r, <span class="op">**</span>kwargs):</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>        is_stream <span class="op">=</span> kwargs.get(<span class="st">"stream"</span>)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> _should_cache(r.url, doms): <span class="cf">return</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>        key <span class="op">=</span> _key(r, is_stream<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> res <span class="op">:=</span> _cache(key,cfp): <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span><span class="dv">200</span>, content<span class="op">=</span>res, request<span class="op">=</span>r)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>        res <span class="op">=</span> <span class="va">self</span>._orig_send(r, <span class="op">**</span>kwargs)</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>        content <span class="op">=</span> res.read().decode() <span class="cf">if</span> <span class="kw">not</span> is_stream <span class="cf">else</span> <span class="st">b''</span>.join(<span class="bu">list</span>(res.iter_bytes())).decode()</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>        _write_cache(key,content,cfp)</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> httpx.Response(status_code<span class="op">=</span>res.status_code, content<span class="op">=</span>content, request<span class="op">=</span>r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Finally, let’s update <a href="https://AnswerDotAI.github.io/cachy/core.html#enable_cachy"><code>enable_cachy</code></a>.</p>
+<hr>
+<p><a href="https://github.com/AnswerDotAI/cachy/blob/main/cachy/core.py#L67" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="enable_cachy-1" class="level3">
+<h3 class="anchored" data-anchor-id="enable_cachy-1">enable_cachy</h3>
+<blockquote class="blockquote">
+<pre><code> enable_cachy (cache_dir=None, doms=('api.openai.com',
+               'api.anthropic.com', 'generativelanguage.googleapis.com',
+               'api.deepseek.com'))</code></pre>
+</blockquote>
+<div id="cell-65" class="cell">
+<details open="" class="code-fold">
+<summary>Exported source</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> enable_cachy(cache_dir<span class="op">=</span><span class="va">None</span>, doms<span class="op">=</span>doms):</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    cfp <span class="op">=</span> Path(cache_dir <span class="kw">or</span> <span class="bu">getattr</span>(Config.find(<span class="st">"settings.ini"</span>), <span class="st">"config_path"</span>, <span class="st">"."</span>)) <span class="op">/</span> <span class="st">"cachy.jsonl"</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>    cfp.touch(exist_ok<span class="op">=</span><span class="va">True</span>)   </span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>    _apply_sync_patch(cfp, doms)</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    _apply_async_patch(cfp, doms)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>And a way to turn if off:</p>
+<hr>
+<p><a href="https://github.com/AnswerDotAI/cachy/blob/main/cachy/core.py#L74" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="disable_cachy" class="level3">
+<h3 class="anchored" data-anchor-id="disable_cachy">disable_cachy</h3>
+<blockquote class="blockquote">
+<pre><code> disable_cachy ()</code></pre>
+</blockquote>
+<div id="cell-68" class="cell">
+<details open="" class="code-fold">
+<summary>Exported source</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> disable_cachy():</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>    httpx._client.AsyncClient.send <span class="op">=</span> httpx._client.AsyncClient._orig_send</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    httpx._client.Client.send      <span class="op">=</span> httpx._client.Client._orig_send</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="tests" class="level2">
+<h2 class="anchored" data-anchor-id="tests">Tests</h2>
+<p>Let’s test <a href="https://AnswerDotAI.github.io/cachy/core.html#enable_cachy"><code>enable_cachy</code></a> on 3 SDKs (OpenAI, Anthropic, LiteLLM) for the scenarios below:</p>
+<ul>
+<li>sync requests with(out) streaming</li>
+<li>async requests with(out) streaming</li>
+</ul>
+<p>Add some helper functions.</p>
+<div id="cell-72" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> mods: ant<span class="op">=</span><span class="st">"claude-sonnet-4-20250514"</span><span class="op">;</span> oai<span class="op">=</span><span class="st">"gpt-4o"</span><span class="op">;</span> gem<span class="op">=</span><span class="st">"gemini/gemini-2.0-flash"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-73" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_msgs(m): <span class="cf">return</span> [{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="ss">f"write 1 word about </span><span class="sc">{</span>m<span class="sc">}</span><span class="ss">"</span>}]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-74" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>enable_cachy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="openai" class="level3">
+<h3 class="anchored" data-anchor-id="openai">OpenAI</h3>
+<div id="cell-76" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai <span class="im">import</span> OpenAI</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-77" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>cli <span class="op">=</span> OpenAI()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-78" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> cli.responses.create(model<span class="op">=</span>mods.oai, <span class="bu">input</span><span class="op">=</span>mk_msgs(<span class="st">"openai sync"</span>))</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>Collaboration</p>
+<details>
+<ul>
+<li>id: resp_017850b8b871e44100692ede6ef6c081a085e7e17b2c19943b</li>
+<li>created_at: 1764679278.0</li>
+<li>error: None</li>
+<li>incomplete_details: None</li>
+<li>instructions: None</li>
+<li>metadata: {}</li>
+<li>model: gpt-4o-2024-08-06</li>
+<li>object: response</li>
+<li>output: [ResponseOutputMessage(id=‘msg_017850b8b871e44100692ede6f9b7081a0a6e61d0ebd2c78da’, content=[ResponseOutputText(annotations=[], text=‘Collaboration’, type=‘output_text’, logprobs=[])], role=‘assistant’, status=‘completed’, type=‘message’)]</li>
+<li>parallel_tool_calls: True</li>
+<li>temperature: 1.0</li>
+<li>tool_choice: auto</li>
+<li>tools: []</li>
+<li>top_p: 1.0</li>
+<li>background: False</li>
+<li>conversation: None</li>
+<li>max_output_tokens: None</li>
+<li>max_tool_calls: None</li>
+<li>previous_response_id: None</li>
+<li>prompt: None</li>
+<li>prompt_cache_key: None</li>
+<li>reasoning: Reasoning(effort=None, generate_summary=None, summary=None)</li>
+<li>safety_identifier: None</li>
+<li>service_tier: default</li>
+<li>status: completed</li>
+<li>text: ResponseTextConfig(format=ResponseFormatText(type=‘text’), verbosity=‘medium’)</li>
+<li>top_logprobs: 0</li>
+<li>truncation: disabled</li>
+<li>usage: ResponseUsage(input_tokens=15, input_tokens_details=InputTokensDetails(cached_tokens=0), output_tokens=3, output_tokens_details=OutputTokensDetails(reasoning_tokens=0), total_tokens=18)</li>
+<li>user: None</li>
+<li>billing: {‘payer’: ‘developer’}</li>
+<li>prompt_cache_retention: None</li>
+<li>store: True</li>
+</ul>
+</details>
+</div>
+</div>
+<div id="cell-79" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> cli.responses.create(model<span class="op">=</span>mods.oai, <span class="bu">input</span><span class="op">=</span>mk_msgs(<span class="st">"openai sync"</span>))</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>Collaboration</p>
+<details>
+<ul>
+<li>id: resp_017850b8b871e44100692ede6ef6c081a085e7e17b2c19943b</li>
+<li>created_at: 1764679278.0</li>
+<li>error: None</li>
+<li>incomplete_details: None</li>
+<li>instructions: None</li>
+<li>metadata: {}</li>
+<li>model: gpt-4o-2024-08-06</li>
+<li>object: response</li>
+<li>output: [ResponseOutputMessage(id=‘msg_017850b8b871e44100692ede6f9b7081a0a6e61d0ebd2c78da’, content=[ResponseOutputText(annotations=[], text=‘Collaboration’, type=‘output_text’, logprobs=[])], role=‘assistant’, status=‘completed’, type=‘message’)]</li>
+<li>parallel_tool_calls: True</li>
+<li>temperature: 1.0</li>
+<li>tool_choice: auto</li>
+<li>tools: []</li>
+<li>top_p: 1.0</li>
+<li>background: False</li>
+<li>conversation: None</li>
+<li>max_output_tokens: None</li>
+<li>max_tool_calls: None</li>
+<li>previous_response_id: None</li>
+<li>prompt: None</li>
+<li>prompt_cache_key: None</li>
+<li>reasoning: Reasoning(effort=None, generate_summary=None, summary=None)</li>
+<li>safety_identifier: None</li>
+<li>service_tier: default</li>
+<li>status: completed</li>
+<li>text: ResponseTextConfig(format=ResponseFormatText(type=‘text’), verbosity=‘medium’)</li>
+<li>top_logprobs: 0</li>
+<li>truncation: disabled</li>
+<li>usage: ResponseUsage(input_tokens=15, input_tokens_details=InputTokensDetails(cached_tokens=0), output_tokens=3, output_tokens_details=OutputTokensDetails(reasoning_tokens=0), total_tokens=18)</li>
+<li>user: None</li>
+<li>billing: {‘payer’: ‘developer’}</li>
+<li>prompt_cache_retention: None</li>
+<li>store: True</li>
+</ul>
+</details>
+</div>
+</div>
+<p>Let’s test streaming.</p>
+<div id="cell-81" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> cli.responses.create(model<span class="op">=</span>mods.oai, <span class="bu">input</span><span class="op">=</span>mk_msgs(<span class="st">"openai sync streaming"</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ch <span class="kw">in</span> r: <span class="bu">print</span>(ch)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ResponseCreatedEvent(response=Response(id='resp_05244a0e69c5f66800692ede7164d4819793bd4ccc65bc4237', created_at=1764679281.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='auto', status='in_progress', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=None, user=None, prompt_cache_retention=None, store=True), sequence_number=0, type='response.created')
+ResponseInProgressEvent(response=Response(id='resp_05244a0e69c5f66800692ede7164d4819793bd4ccc65bc4237', created_at=1764679281.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='auto', status='in_progress', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=None, user=None, prompt_cache_retention=None, store=True), sequence_number=1, type='response.in_progress')
+ResponseOutputItemAddedEvent(item=ResponseOutputMessage(id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', content=[], role='assistant', status='in_progress', type='message'), output_index=0, sequence_number=2, type='response.output_item.added')
+ResponseContentPartAddedEvent(content_index=0, item_id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', output_index=0, part=ResponseOutputText(annotations=[], text='', type='output_text', logprobs=[]), sequence_number=3, type='response.content_part.added')
+ResponseTextDeltaEvent(content_index=0, delta='Innov', item_id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', logprobs=[], output_index=0, sequence_number=4, type='response.output_text.delta', obfuscation='eNimFngwXhb')
+ResponseTextDeltaEvent(content_index=0, delta='ative', item_id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', logprobs=[], output_index=0, sequence_number=5, type='response.output_text.delta', obfuscation='NIHlIsqyjma')
+ResponseTextDoneEvent(content_index=0, item_id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', logprobs=[], output_index=0, sequence_number=6, text='Innovative', type='response.output_text.done')
+ResponseContentPartDoneEvent(content_index=0, item_id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', output_index=0, part=ResponseOutputText(annotations=[], text='Innovative', type='output_text', logprobs=[]), sequence_number=7, type='response.content_part.done')
+ResponseOutputItemDoneEvent(item=ResponseOutputMessage(id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', content=[ResponseOutputText(annotations=[], text='Innovative', type='output_text', logprobs=[])], role='assistant', status='completed', type='message'), output_index=0, sequence_number=8, type='response.output_item.done')
+ResponseCompletedEvent(response=Response(id='resp_05244a0e69c5f66800692ede7164d4819793bd4ccc65bc4237', created_at=1764679281.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[ResponseOutputMessage(id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', content=[ResponseOutputText(annotations=[], text='Innovative', type='output_text', logprobs=[])], role='assistant', status='completed', type='message')], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='default', status='completed', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=In: 16; Out: 3; Total: 19, user=None, prompt_cache_retention=None, store=True), sequence_number=9, type='response.completed')</code></pre>
+</div>
+</div>
+<div id="cell-82" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> cli.responses.create(model<span class="op">=</span>mods.oai, <span class="bu">input</span><span class="op">=</span>mk_msgs(<span class="st">"openai sync streaming"</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ch <span class="kw">in</span> r: <span class="bu">print</span>(ch)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ResponseCreatedEvent(response=Response(id='resp_05244a0e69c5f66800692ede7164d4819793bd4ccc65bc4237', created_at=1764679281.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='auto', status='in_progress', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=None, user=None, prompt_cache_retention=None, store=True), sequence_number=0, type='response.created')
+ResponseInProgressEvent(response=Response(id='resp_05244a0e69c5f66800692ede7164d4819793bd4ccc65bc4237', created_at=1764679281.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='auto', status='in_progress', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=None, user=None, prompt_cache_retention=None, store=True), sequence_number=1, type='response.in_progress')
+ResponseOutputItemAddedEvent(item=ResponseOutputMessage(id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', content=[], role='assistant', status='in_progress', type='message'), output_index=0, sequence_number=2, type='response.output_item.added')
+ResponseContentPartAddedEvent(content_index=0, item_id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', output_index=0, part=ResponseOutputText(annotations=[], text='', type='output_text', logprobs=[]), sequence_number=3, type='response.content_part.added')
+ResponseTextDeltaEvent(content_index=0, delta='Innov', item_id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', logprobs=[], output_index=0, sequence_number=4, type='response.output_text.delta', obfuscation='eNimFngwXhb')
+ResponseTextDeltaEvent(content_index=0, delta='ative', item_id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', logprobs=[], output_index=0, sequence_number=5, type='response.output_text.delta', obfuscation='NIHlIsqyjma')
+ResponseTextDoneEvent(content_index=0, item_id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', logprobs=[], output_index=0, sequence_number=6, text='Innovative', type='response.output_text.done')
+ResponseContentPartDoneEvent(content_index=0, item_id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', output_index=0, part=ResponseOutputText(annotations=[], text='Innovative', type='output_text', logprobs=[]), sequence_number=7, type='response.content_part.done')
+ResponseOutputItemDoneEvent(item=ResponseOutputMessage(id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', content=[ResponseOutputText(annotations=[], text='Innovative', type='output_text', logprobs=[])], role='assistant', status='completed', type='message'), output_index=0, sequence_number=8, type='response.output_item.done')
+ResponseCompletedEvent(response=Response(id='resp_05244a0e69c5f66800692ede7164d4819793bd4ccc65bc4237', created_at=1764679281.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[ResponseOutputMessage(id='msg_05244a0e69c5f66800692ede71c3308197989e1d568fbfc387', content=[ResponseOutputText(annotations=[], text='Innovative', type='output_text', logprobs=[])], role='assistant', status='completed', type='message')], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='default', status='completed', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=In: 16; Out: 3; Total: 19, user=None, prompt_cache_retention=None, store=True), sequence_number=9, type='response.completed')</code></pre>
+</div>
+</div>
+<p>Let’s test async.</p>
+<div id="cell-84" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai <span class="im">import</span> AsyncOpenAI</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-85" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>cli <span class="op">=</span> AsyncOpenAI()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-86" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> cli.responses.create(model<span class="op">=</span>mods.oai, <span class="bu">input</span><span class="op">=</span>mk_msgs(<span class="st">"openai async"</span>))</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>Innovative</p>
+<details>
+<ul>
+<li>id: resp_0efa725f1445a96c00692ede73db0481a094ddddaab4135e1f</li>
+<li>created_at: 1764679283.0</li>
+<li>error: None</li>
+<li>incomplete_details: None</li>
+<li>instructions: None</li>
+<li>metadata: {}</li>
+<li>model: gpt-4o-2024-08-06</li>
+<li>object: response</li>
+<li>output: [ResponseOutputMessage(id=‘msg_0efa725f1445a96c00692ede74206881a0bd7959dfa7047a88’, content=[ResponseOutputText(annotations=[], text=‘Innovative’, type=‘output_text’, logprobs=[])], role=‘assistant’, status=‘completed’, type=‘message’)]</li>
+<li>parallel_tool_calls: True</li>
+<li>temperature: 1.0</li>
+<li>tool_choice: auto</li>
+<li>tools: []</li>
+<li>top_p: 1.0</li>
+<li>background: False</li>
+<li>conversation: None</li>
+<li>max_output_tokens: None</li>
+<li>max_tool_calls: None</li>
+<li>previous_response_id: None</li>
+<li>prompt: None</li>
+<li>prompt_cache_key: None</li>
+<li>reasoning: Reasoning(effort=None, generate_summary=None, summary=None)</li>
+<li>safety_identifier: None</li>
+<li>service_tier: default</li>
+<li>status: completed</li>
+<li>text: ResponseTextConfig(format=ResponseFormatText(type=‘text’), verbosity=‘medium’)</li>
+<li>top_logprobs: 0</li>
+<li>truncation: disabled</li>
+<li>usage: ResponseUsage(input_tokens=15, input_tokens_details=InputTokensDetails(cached_tokens=0), output_tokens=3, output_tokens_details=OutputTokensDetails(reasoning_tokens=0), total_tokens=18)</li>
+<li>user: None</li>
+<li>billing: {‘payer’: ‘developer’}</li>
+<li>prompt_cache_retention: None</li>
+<li>store: True</li>
+</ul>
+</details>
+</div>
+</div>
+<div id="cell-87" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> cli.responses.create(model<span class="op">=</span>mods.oai, <span class="bu">input</span><span class="op">=</span>mk_msgs(<span class="st">"openai async"</span>))</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>Innovative</p>
+<details>
+<ul>
+<li>id: resp_0efa725f1445a96c00692ede73db0481a094ddddaab4135e1f</li>
+<li>created_at: 1764679283.0</li>
+<li>error: None</li>
+<li>incomplete_details: None</li>
+<li>instructions: None</li>
+<li>metadata: {}</li>
+<li>model: gpt-4o-2024-08-06</li>
+<li>object: response</li>
+<li>output: [ResponseOutputMessage(id=‘msg_0efa725f1445a96c00692ede74206881a0bd7959dfa7047a88’, content=[ResponseOutputText(annotations=[], text=‘Innovative’, type=‘output_text’, logprobs=[])], role=‘assistant’, status=‘completed’, type=‘message’)]</li>
+<li>parallel_tool_calls: True</li>
+<li>temperature: 1.0</li>
+<li>tool_choice: auto</li>
+<li>tools: []</li>
+<li>top_p: 1.0</li>
+<li>background: False</li>
+<li>conversation: None</li>
+<li>max_output_tokens: None</li>
+<li>max_tool_calls: None</li>
+<li>previous_response_id: None</li>
+<li>prompt: None</li>
+<li>prompt_cache_key: None</li>
+<li>reasoning: Reasoning(effort=None, generate_summary=None, summary=None)</li>
+<li>safety_identifier: None</li>
+<li>service_tier: default</li>
+<li>status: completed</li>
+<li>text: ResponseTextConfig(format=ResponseFormatText(type=‘text’), verbosity=‘medium’)</li>
+<li>top_logprobs: 0</li>
+<li>truncation: disabled</li>
+<li>usage: ResponseUsage(input_tokens=15, input_tokens_details=InputTokensDetails(cached_tokens=0), output_tokens=3, output_tokens_details=OutputTokensDetails(reasoning_tokens=0), total_tokens=18)</li>
+<li>user: None</li>
+<li>billing: {‘payer’: ‘developer’}</li>
+<li>prompt_cache_retention: None</li>
+<li>store: True</li>
+</ul>
+</details>
+</div>
+</div>
+<p>Let’s test async streaming.</p>
+<div id="cell-89" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> cli.responses.create(model<span class="op">=</span>mods.oai, <span class="bu">input</span><span class="op">=</span>mk_msgs(<span class="st">"openai async streaming"</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="cf">for</span> ch <span class="kw">in</span> r: <span class="bu">print</span>(ch)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ResponseCreatedEvent(response=Response(id='resp_05d129295d2177e400692ede76dbe481a3856cbae82d8bd97d', created_at=1764679286.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='auto', status='in_progress', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=None, user=None, prompt_cache_retention=None, store=True), sequence_number=0, type='response.created')
+ResponseInProgressEvent(response=Response(id='resp_05d129295d2177e400692ede76dbe481a3856cbae82d8bd97d', created_at=1764679286.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='auto', status='in_progress', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=None, user=None, prompt_cache_retention=None, store=True), sequence_number=1, type='response.in_progress')
+ResponseOutputItemAddedEvent(item=ResponseOutputMessage(id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', content=[], role='assistant', status='in_progress', type='message'), output_index=0, sequence_number=2, type='response.output_item.added')
+ResponseContentPartAddedEvent(content_index=0, item_id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', output_index=0, part=ResponseOutputText(annotations=[], text='', type='output_text', logprobs=[]), sequence_number=3, type='response.content_part.added')
+ResponseTextDeltaEvent(content_index=0, delta='Eff', item_id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', logprobs=[], output_index=0, sequence_number=4, type='response.output_text.delta', obfuscation='8cG9Ub8L8V5I9')
+ResponseTextDeltaEvent(content_index=0, delta='icient', item_id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', logprobs=[], output_index=0, sequence_number=5, type='response.output_text.delta', obfuscation='ViOTkG9eDM')
+ResponseTextDoneEvent(content_index=0, item_id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', logprobs=[], output_index=0, sequence_number=6, text='Efficient', type='response.output_text.done')
+ResponseContentPartDoneEvent(content_index=0, item_id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', output_index=0, part=ResponseOutputText(annotations=[], text='Efficient', type='output_text', logprobs=[]), sequence_number=7, type='response.content_part.done')
+ResponseOutputItemDoneEvent(item=ResponseOutputMessage(id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', content=[ResponseOutputText(annotations=[], text='Efficient', type='output_text', logprobs=[])], role='assistant', status='completed', type='message'), output_index=0, sequence_number=8, type='response.output_item.done')
+ResponseCompletedEvent(response=Response(id='resp_05d129295d2177e400692ede76dbe481a3856cbae82d8bd97d', created_at=1764679286.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[ResponseOutputMessage(id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', content=[ResponseOutputText(annotations=[], text='Efficient', type='output_text', logprobs=[])], role='assistant', status='completed', type='message')], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='default', status='completed', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=In: 16; Out: 3; Total: 19, user=None, prompt_cache_retention=None, store=True), sequence_number=9, type='response.completed')</code></pre>
+</div>
+</div>
+<div id="cell-90" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> cli.responses.create(model<span class="op">=</span>mods.oai, <span class="bu">input</span><span class="op">=</span>mk_msgs(<span class="st">"openai async streaming"</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="cf">for</span> ch <span class="kw">in</span> r: <span class="bu">print</span>(ch)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ResponseCreatedEvent(response=Response(id='resp_05d129295d2177e400692ede76dbe481a3856cbae82d8bd97d', created_at=1764679286.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='auto', status='in_progress', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=None, user=None, prompt_cache_retention=None, store=True), sequence_number=0, type='response.created')
+ResponseInProgressEvent(response=Response(id='resp_05d129295d2177e400692ede76dbe481a3856cbae82d8bd97d', created_at=1764679286.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='auto', status='in_progress', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=None, user=None, prompt_cache_retention=None, store=True), sequence_number=1, type='response.in_progress')
+ResponseOutputItemAddedEvent(item=ResponseOutputMessage(id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', content=[], role='assistant', status='in_progress', type='message'), output_index=0, sequence_number=2, type='response.output_item.added')
+ResponseContentPartAddedEvent(content_index=0, item_id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', output_index=0, part=ResponseOutputText(annotations=[], text='', type='output_text', logprobs=[]), sequence_number=3, type='response.content_part.added')
+ResponseTextDeltaEvent(content_index=0, delta='Eff', item_id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', logprobs=[], output_index=0, sequence_number=4, type='response.output_text.delta', obfuscation='8cG9Ub8L8V5I9')
+ResponseTextDeltaEvent(content_index=0, delta='icient', item_id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', logprobs=[], output_index=0, sequence_number=5, type='response.output_text.delta', obfuscation='ViOTkG9eDM')
+ResponseTextDoneEvent(content_index=0, item_id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', logprobs=[], output_index=0, sequence_number=6, text='Efficient', type='response.output_text.done')
+ResponseContentPartDoneEvent(content_index=0, item_id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', output_index=0, part=ResponseOutputText(annotations=[], text='Efficient', type='output_text', logprobs=[]), sequence_number=7, type='response.content_part.done')
+ResponseOutputItemDoneEvent(item=ResponseOutputMessage(id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', content=[ResponseOutputText(annotations=[], text='Efficient', type='output_text', logprobs=[])], role='assistant', status='completed', type='message'), output_index=0, sequence_number=8, type='response.output_item.done')
+ResponseCompletedEvent(response=Response(id='resp_05d129295d2177e400692ede76dbe481a3856cbae82d8bd97d', created_at=1764679286.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4o-2024-08-06', object='response', output=[ResponseOutputMessage(id='msg_05d129295d2177e400692ede77796481a3b7a73f61fbe10b8b', content=[ResponseOutputText(annotations=[], text='Efficient', type='output_text', logprobs=[])], role='assistant', status='completed', type='message')], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='default', status='completed', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=In: 16; Out: 3; Total: 19, user=None, prompt_cache_retention=None, store=True), sequence_number=9, type='response.completed')</code></pre>
+</div>
+</div>
+</section>
+<section id="anthropic" class="level3">
+<h3 class="anchored" data-anchor-id="anthropic">Anthropic</h3>
+<div id="cell-92" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> anthropic <span class="im">import</span> Anthropic</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-93" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>cli <span class="op">=</span> Anthropic()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-94" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> cli.messages.create(model<span class="op">=</span>mods.ant, max_tokens<span class="op">=</span><span class="dv">1024</span>, messages<span class="op">=</span>mk_msgs(<span class="st">"ant sync"</span>))</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>Coordination</p>
+<details>
+<ul>
+<li>id: <code>msg_01CfjNMMiotXXVesJp8bhZy2</code></li>
+<li>content: <code>[{'citations': None, 'text': 'Coordination', 'type': 'text'}]</code></li>
+<li>model: <code>claude-sonnet-4-20250514</code></li>
+<li>role: <code>assistant</code></li>
+<li>stop_reason: <code>end_turn</code></li>
+<li>stop_sequence: <code>None</code></li>
+<li>type: <code>message</code></li>
+<li>usage: <code>{'cache_creation': {'ephemeral_1h_input_tokens': 0, 'ephemeral_5m_input_tokens': 0}, 'cache_creation_input_tokens': 0, 'cache_read_input_tokens': 0, 'input_tokens': 15, 'output_tokens': 5, 'server_tool_use': None, 'service_tier': 'standard'}</code></li>
+</ul>
+</details>
+</div>
+</div>
+<div id="cell-95" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> cli.messages.create(model<span class="op">=</span>mods.ant, max_tokens<span class="op">=</span><span class="dv">1024</span>, messages<span class="op">=</span>mk_msgs(<span class="st">"ant sync"</span>))</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>Coordination</p>
+<details>
+<ul>
+<li>id: <code>msg_01CfjNMMiotXXVesJp8bhZy2</code></li>
+<li>content: <code>[{'citations': None, 'text': 'Coordination', 'type': 'text'}]</code></li>
+<li>model: <code>claude-sonnet-4-20250514</code></li>
+<li>role: <code>assistant</code></li>
+<li>stop_reason: <code>end_turn</code></li>
+<li>stop_sequence: <code>None</code></li>
+<li>type: <code>message</code></li>
+<li>usage: <code>{'cache_creation': {'ephemeral_1h_input_tokens': 0, 'ephemeral_5m_input_tokens': 0}, 'cache_creation_input_tokens': 0, 'cache_read_input_tokens': 0, 'input_tokens': 15, 'output_tokens': 5, 'server_tool_use': None, 'service_tier': 'standard'}</code></li>
+</ul>
+</details>
+</div>
+</div>
+<p>Let’s test streaming.</p>
+<div id="cell-97" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> cli.messages.create(model<span class="op">=</span>mods.ant, max_tokens<span class="op">=</span><span class="dv">1024</span>, messages<span class="op">=</span>mk_msgs(<span class="st">"ant sync streaming"</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ch <span class="kw">in</span> r: <span class="bu">print</span>(ch)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RawMessageStartEvent(message=Message(id='msg_015x4UT4k9GhMN47kCy1ctrt', content=[], model='claude-sonnet-4-20250514', role='assistant', stop_reason=None, stop_sequence=None, type='message', usage=In: 16; Out: 2; Cache create: 0; Cache read: 0; Total Tokens: 18; Search: 0), type='message_start')
+RawContentBlockStartEvent(content_block=TextBlock(citations=None, text='', type='text'), index=0, type='content_block_start')
+RawContentBlockDeltaEvent(delta=TextDelta(text='Buff', type='text_delta'), index=0, type='content_block_delta')
+RawContentBlockDeltaEvent(delta=TextDelta(text='ering', type='text_delta'), index=0, type='content_block_delta')
+RawContentBlockStopEvent(index=0, type='content_block_stop')
+RawMessageDeltaEvent(delta=Delta(stop_reason='end_turn', stop_sequence=None), type='message_delta', usage=MessageDeltaUsage(cache_creation_input_tokens=0, cache_read_input_tokens=0, input_tokens=16, output_tokens=6, server_tool_use=None))
+RawMessageStopEvent(type='message_stop')</code></pre>
+</div>
+</div>
+<div id="cell-98" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> cli.messages.create(model<span class="op">=</span>mods.ant, max_tokens<span class="op">=</span><span class="dv">1024</span>, messages<span class="op">=</span>mk_msgs(<span class="st">"ant sync streaming"</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ch <span class="kw">in</span> r: <span class="bu">print</span>(ch)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RawMessageStartEvent(message=Message(id='msg_015x4UT4k9GhMN47kCy1ctrt', content=[], model='claude-sonnet-4-20250514', role='assistant', stop_reason=None, stop_sequence=None, type='message', usage=In: 16; Out: 2; Cache create: 0; Cache read: 0; Total Tokens: 18; Search: 0), type='message_start')
+RawContentBlockStartEvent(content_block=TextBlock(citations=None, text='', type='text'), index=0, type='content_block_start')
+RawContentBlockDeltaEvent(delta=TextDelta(text='Buff', type='text_delta'), index=0, type='content_block_delta')
+RawContentBlockDeltaEvent(delta=TextDelta(text='ering', type='text_delta'), index=0, type='content_block_delta')
+RawContentBlockStopEvent(index=0, type='content_block_stop')
+RawMessageDeltaEvent(delta=Delta(stop_reason='end_turn', stop_sequence=None), type='message_delta', usage=MessageDeltaUsage(cache_creation_input_tokens=0, cache_read_input_tokens=0, input_tokens=16, output_tokens=6, server_tool_use=None))
+RawMessageStopEvent(type='message_stop')</code></pre>
+</div>
+</div>
+<p>Let’s test async.</p>
+<div id="cell-100" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> anthropic <span class="im">import</span> AsyncAnthropic</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-101" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>cli <span class="op">=</span> AsyncAnthropic()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-102" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> cli.messages.create(model<span class="op">=</span>mods.ant, max_tokens<span class="op">=</span><span class="dv">1024</span>, messages<span class="op">=</span>mk_msgs(<span class="st">"ant async"</span>))</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p><strong>Concurrency</strong></p>
+<details>
+<ul>
+<li>id: <code>msg_01NMWNEQCiGWepH1g4eB2yDb</code></li>
+<li>content: <code>[{'citations': None, 'text': '**Concurrency**', 'type': 'text'}]</code></li>
+<li>model: <code>claude-sonnet-4-20250514</code></li>
+<li>role: <code>assistant</code></li>
+<li>stop_reason: <code>end_turn</code></li>
+<li>stop_sequence: <code>None</code></li>
+<li>type: <code>message</code></li>
+<li>usage: <code>{'cache_creation': {'ephemeral_1h_input_tokens': 0, 'ephemeral_5m_input_tokens': 0}, 'cache_creation_input_tokens': 0, 'cache_read_input_tokens': 0, 'input_tokens': 15, 'output_tokens': 8, 'server_tool_use': None, 'service_tier': 'standard'}</code></li>
+</ul>
+</details>
+</div>
+</div>
+<div id="cell-103" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> cli.messages.create(model<span class="op">=</span>mods.ant, max_tokens<span class="op">=</span><span class="dv">1024</span>, messages<span class="op">=</span>mk_msgs(<span class="st">"ant async"</span>))</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p><strong>Concurrency</strong></p>
+<details>
+<ul>
+<li>id: <code>msg_01NMWNEQCiGWepH1g4eB2yDb</code></li>
+<li>content: <code>[{'citations': None, 'text': '**Concurrency**', 'type': 'text'}]</code></li>
+<li>model: <code>claude-sonnet-4-20250514</code></li>
+<li>role: <code>assistant</code></li>
+<li>stop_reason: <code>end_turn</code></li>
+<li>stop_sequence: <code>None</code></li>
+<li>type: <code>message</code></li>
+<li>usage: <code>{'cache_creation': {'ephemeral_1h_input_tokens': 0, 'ephemeral_5m_input_tokens': 0}, 'cache_creation_input_tokens': 0, 'cache_read_input_tokens': 0, 'input_tokens': 15, 'output_tokens': 8, 'server_tool_use': None, 'service_tier': 'standard'}</code></li>
+</ul>
+</details>
+</div>
+</div>
+<p>Let’s test async streaming.</p>
+<div id="cell-105" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> cli.messages.create(model<span class="op">=</span>mods.ant,max_tokens<span class="op">=</span><span class="dv">1024</span>,messages<span class="op">=</span>mk_msgs(<span class="st">"ant async streaming"</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="cf">for</span> ch <span class="kw">in</span> r.response.aiter_bytes(): <span class="bu">print</span>(ch.decode())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>event: message_start
+data: {"type":"message_start","message":{"model":"claude-sonnet-4-20250514","id":"msg_01HSogveNre4UeiteLGqiZkt","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":16,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard"}}            }
+
+event: content_block_start
+data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}         }
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"**"}               }
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Concurrent"}             }
+
+event: ping
+data: {"type": "ping"}
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"**"}    }
+
+event: content_block_stop
+data: {"type":"content_block_stop","index":0   }
+
+event: message_delta
+data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":16,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":7}  }
+
+event: message_stop
+data: {"type":"message_stop"     }
+
+</code></pre>
+</div>
+</div>
+<div id="cell-106" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> cli.messages.create(model<span class="op">=</span>mods.ant,max_tokens<span class="op">=</span><span class="dv">1024</span>,messages<span class="op">=</span>mk_msgs(<span class="st">"ant async streaming"</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="cf">for</span> ch <span class="kw">in</span> r.response.aiter_bytes(): <span class="bu">print</span>(ch.decode())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>event: message_start
+data: {"type":"message_start","message":{"model":"claude-sonnet-4-20250514","id":"msg_01HSogveNre4UeiteLGqiZkt","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":16,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard"}}            }
+
+event: content_block_start
+data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}         }
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"**"}               }
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Concurrent"}             }
+
+event: ping
+data: {"type": "ping"}
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"**"}    }
+
+event: content_block_stop
+data: {"type":"content_block_stop","index":0   }
+
+event: message_delta
+data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":16,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":7}  }
+
+event: message_stop
+data: {"type":"message_stop"     }
+
+</code></pre>
+</div>
+</div>
+</section>
+<section id="litellm" class="level3">
+<h3 class="anchored" data-anchor-id="litellm">LiteLLM</h3>
+<p>Let’s test the LiteLLM SDK by running sync/async calls with(out) streaming for OpenAI, Anthropic, &amp; Gemini.</p>
+<p>We’ll also double check tool calls and citations.</p>
+<section id="sync-tests" class="level4">
+<h4 class="anchored" data-anchor-id="sync-tests">Sync Tests</h4>
+<div id="cell-110" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> litellm <span class="im">import</span> completion</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Let’s define a helper method to display a streamed response.</p>
+<div id="cell-112" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _stream(r): </span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ch <span class="kw">in</span> r: <span class="bu">print</span>(ch.choices[<span class="dv">0</span>].delta.content <span class="kw">or</span> <span class="st">""</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="anthropic-1" class="level5">
+<h5 class="anchored" data-anchor-id="anthropic-1">Anthropic</h5>
+<p>Let’s test <code>claude-sonnet-x</code>.</p>
+<div id="cell-115" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.ant, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: ant sync..."</span>))</span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-4a601d73-c5e0-4a99-9bb5-72184b503ceb', created=1764679321, model='claude-sonnet-4-20250514', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='stop', index=0, message=Message(content='**partial**', role='assistant', tool_calls=None, function_call=None, provider_specific_fields={'citations': None, 'thinking_blocks': None}))], usage=Usage(completion_tokens=6, prompt_tokens=18, total_tokens=24, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=0, text_tokens=None, image_tokens=None), cache_creation_input_tokens=0, cache_read_input_tokens=0))</code></pre>
+</div>
+</div>
+<div id="cell-116" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.ant, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: ant sync..."</span>))</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-858c663c-5f1a-4836-80ef-2f99c9cafef9', created=1764679321, model='claude-sonnet-4-20250514', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='stop', index=0, message=Message(content='**partial**', role='assistant', tool_calls=None, function_call=None, provider_specific_fields={'citations': None, 'thinking_blocks': None}))], usage=Usage(completion_tokens=6, prompt_tokens=18, total_tokens=24, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=0, text_tokens=None, image_tokens=None), cache_creation_input_tokens=0, cache_read_input_tokens=0))</code></pre>
+</div>
+</div>
+<p>Now, with streaming enabled.</p>
+<div id="cell-118" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.ant, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: ant sync stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>_stream(r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>**
+Efficient
+**
+</code></pre>
+</div>
+</div>
+<div id="cell-119" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.ant, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: ant sync stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>_stream(r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>**
+Efficient
+**
+</code></pre>
+</div>
+</div>
+</section>
+<section id="openai-1" class="level5">
+<h5 class="anchored" data-anchor-id="openai-1">OpenAI</h5>
+<p>Let’s test <code>gpt-4o</code>.</p>
+<div id="cell-122" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.oai, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: oai sync..."</span>))</span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-CiJzMl6JYB7siXcKdtd6IzFhjOSSU', created=1764679304, model='gpt-4o-2024-08-06', object='chat.completion', system_fingerprint='fp_e819e3438b', choices=[Choices(finish_reason='stop', index=0, message=Message(content='Connectivity', role='assistant', tool_calls=None, function_call=None, provider_specific_fields={'refusal': None}, annotations=[]), provider_specific_fields={})], usage=Usage(completion_tokens=1, prompt_tokens=18, total_tokens=19, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0, text_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=0, cached_tokens=0, text_tokens=None, image_tokens=None)), service_tier='default')</code></pre>
+</div>
+</div>
+<div id="cell-123" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.oai, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: oai sync..."</span>))</span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-CiJzMl6JYB7siXcKdtd6IzFhjOSSU', created=1764679304, model='gpt-4o-2024-08-06', object='chat.completion', system_fingerprint='fp_e819e3438b', choices=[Choices(finish_reason='stop', index=0, message=Message(content='Connectivity', role='assistant', tool_calls=None, function_call=None, provider_specific_fields={'refusal': None}, annotations=[]), provider_specific_fields={})], usage=Usage(completion_tokens=1, prompt_tokens=18, total_tokens=19, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0, text_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=0, cached_tokens=0, text_tokens=None, image_tokens=None)), service_tier='default')</code></pre>
+</div>
+</div>
+<p>Now, with streaming enabled.</p>
+<div id="cell-125" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.oai, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: oai sync stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>_stream(r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Integration
+
+</code></pre>
+</div>
+</div>
+<div id="cell-126" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.oai, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: oai sync stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>_stream(r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Integration
+
+</code></pre>
+</div>
+</div>
+</section>
+<section id="gemini" class="level5">
+<h5 class="anchored" data-anchor-id="gemini">Gemini</h5>
+<p>Let’s test <code>2.0-flash</code>.</p>
+<div id="cell-129" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.gem, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: gem sync..."</span>))</span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='it4uaaeWJNKlkdUPv-fwiQg', created=1764679325, model='gemini-2.0-flash', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='stop', index=0, message=Message(content='Efficient.\n', role='assistant', tool_calls=None, function_call=None, provider_specific_fields=None))], usage=Usage(completion_tokens=3, prompt_tokens=10, total_tokens=13, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=None, text_tokens=10, image_tokens=None)), vertex_ai_grounding_metadata=[], vertex_ai_url_context_metadata=[], vertex_ai_safety_results=[], vertex_ai_citation_metadata=[])</code></pre>
+</div>
+</div>
+<div id="cell-130" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.gem, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: gem sync..."</span>))</span>
+<span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='it4uaaeWJNKlkdUPv-fwiQg', created=1764679325, model='gemini-2.0-flash', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='stop', index=0, message=Message(content='Efficient.\n', role='assistant', tool_calls=None, function_call=None, provider_specific_fields=None))], usage=Usage(completion_tokens=3, prompt_tokens=10, total_tokens=13, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=None, text_tokens=10, image_tokens=None)), vertex_ai_grounding_metadata=[], vertex_ai_url_context_metadata=[], vertex_ai_safety_results=[], vertex_ai_citation_metadata=[])</code></pre>
+</div>
+</div>
+<p>Now, with streaming enabled.</p>
+<div id="cell-132" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.gem, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: gem sync stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>_stream(r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Fast
+</code></pre>
+</div>
+</div>
+<div id="cell-133" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.gem, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: gem sync stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>_stream(r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Fast
+</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="async-tests" class="level4">
+<h4 class="anchored" data-anchor-id="async-tests">Async Tests</h4>
+<div id="cell-135" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> litellm <span class="im">import</span> acompletion</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-136" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> _astream(r):</span>
+<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">async</span> <span class="cf">for</span> chunk <span class="kw">in</span> r: <span class="bu">print</span>(chunk.choices[<span class="dv">0</span>].delta.content <span class="kw">or</span> <span class="st">""</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="anthropic-2" class="level5">
+<h5 class="anchored" data-anchor-id="anthropic-2">Anthropic</h5>
+<p>Let’s test <code>claude-sonnet-x</code>.</p>
+<div id="cell-139" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.ant, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: ant async..."</span>))</span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-36db5251-9a24-4394-b820-b1b1e6eff9c3', created=1764679329, model='claude-sonnet-4-20250514', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='stop', index=0, message=Message(content='**coroutines**', role='assistant', tool_calls=None, function_call=None, provider_specific_fields={'citations': None, 'thinking_blocks': None}))], usage=Usage(completion_tokens=8, prompt_tokens=18, total_tokens=26, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=0, text_tokens=None, image_tokens=None), cache_creation_input_tokens=0, cache_read_input_tokens=0))</code></pre>
+</div>
+</div>
+<div id="cell-140" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.ant, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: ant async..."</span>))</span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-9455c342-beae-4ff2-a012-d11bd8e959ca', created=1764679329, model='claude-sonnet-4-20250514', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='stop', index=0, message=Message(content='**coroutines**', role='assistant', tool_calls=None, function_call=None, provider_specific_fields={'citations': None, 'thinking_blocks': None}))], usage=Usage(completion_tokens=8, prompt_tokens=18, total_tokens=26, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=0, text_tokens=None, image_tokens=None), cache_creation_input_tokens=0, cache_read_input_tokens=0))</code></pre>
+</div>
+</div>
+<p>Now, with streaming enabled.</p>
+<div id="cell-142" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.ant, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: ant async stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span>(_astream(r))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>**
+concurrent
+**
+</code></pre>
+</div>
+</div>
+<div id="cell-143" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.ant, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: ant async stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span>(_astream(r))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>**
+concurrent
+**
+</code></pre>
+</div>
+</div>
+</section>
+<section id="openai-2" class="level5">
+<h5 class="anchored" data-anchor-id="openai-2">OpenAI</h5>
+<p>Let’s test <code>gpt-4o</code>.</p>
+<div id="cell-146" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.oai, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: oai async..."</span>))</span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-CiJzVWXtqcySUdl7b9G7E80vaWjwW', created=1764679313, model='gpt-4o-2024-08-06', object='chat.completion', system_fingerprint='fp_e819e3438b', choices=[Choices(finish_reason='stop', index=0, message=Message(content='Efficient.', role='assistant', tool_calls=None, function_call=None, provider_specific_fields={'refusal': None}, annotations=[]), provider_specific_fields={})], usage=Usage(completion_tokens=3, prompt_tokens=18, total_tokens=21, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0, text_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=0, cached_tokens=0, text_tokens=None, image_tokens=None)), service_tier='default')</code></pre>
+</div>
+</div>
+<div id="cell-147" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.oai, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: oai async..."</span>))</span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-CiJzVWXtqcySUdl7b9G7E80vaWjwW', created=1764679313, model='gpt-4o-2024-08-06', object='chat.completion', system_fingerprint='fp_e819e3438b', choices=[Choices(finish_reason='stop', index=0, message=Message(content='Efficient.', role='assistant', tool_calls=None, function_call=None, provider_specific_fields={'refusal': None}, annotations=[]), provider_specific_fields={})], usage=Usage(completion_tokens=3, prompt_tokens=18, total_tokens=21, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0, text_tokens=None), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=0, cached_tokens=0, text_tokens=None, image_tokens=None)), service_tier='default')</code></pre>
+</div>
+</div>
+<p>Now, with streaming enabled.</p>
+<div id="cell-149" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.oai, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: oai async stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span>(_astream(r))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Illuminate
+
+</code></pre>
+</div>
+</div>
+<div id="cell-150" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.oai, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: oai async stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb122-2"><a href="#cb122-2" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span>(_astream(r))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Illuminate
+
+</code></pre>
+</div>
+</div>
+</section>
+<section id="gemini-1" class="level5">
+<h5 class="anchored" data-anchor-id="gemini-1">Gemini</h5>
+<p>Let’s test <code>2.0-flash</code>.</p>
+<div id="cell-153" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.gem, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: gem async..."</span>))</span>
+<span id="cb124-2"><a href="#cb124-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='kt4uaenhMJ66xN8Pgpv6gAE', created=1764679333, model='gemini-2.0-flash', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='stop', index=0, message=Message(content='Concurrency\n', role='assistant', tool_calls=None, function_call=None, provider_specific_fields=None))], usage=Usage(completion_tokens=2, prompt_tokens=10, total_tokens=12, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=None, text_tokens=10, image_tokens=None)), vertex_ai_grounding_metadata=[], vertex_ai_url_context_metadata=[], vertex_ai_safety_results=[], vertex_ai_citation_metadata=[])</code></pre>
+</div>
+</div>
+<div id="cell-154" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.gem, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: gem async..."</span>))</span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='kt4uaenhMJ66xN8Pgpv6gAE', created=1764679334, model='gemini-2.0-flash', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='stop', index=0, message=Message(content='Concurrency\n', role='assistant', tool_calls=None, function_call=None, provider_specific_fields=None))], usage=Usage(completion_tokens=2, prompt_tokens=10, total_tokens=12, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=None, text_tokens=10, image_tokens=None)), vertex_ai_grounding_metadata=[], vertex_ai_url_context_metadata=[], vertex_ai_safety_results=[], vertex_ai_citation_metadata=[])</code></pre>
+</div>
+</div>
+<p>Now, with streaming enabled.</p>
+<div id="cell-156" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb128"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.gem, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: gem async stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span>(_astream(r))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Fast
+</code></pre>
+</div>
+</div>
+<div id="cell-157" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb130"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="cf">await</span> acompletion(model<span class="op">=</span>mods.gem, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: gem async stream..."</span>), stream<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span>(_astream(r))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Fast
+</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="tool-calls" class="level4">
+<h4 class="anchored" data-anchor-id="tool-calls">Tool Calls</h4>
+<p>As a sanity check let’s confirm that tool calls work.</p>
+<div id="cell-160" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a>tools <span class="op">=</span> [</span>
+<span id="cb132-2"><a href="#cb132-2" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb132-3"><a href="#cb132-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"type"</span>: <span class="st">"function"</span>,</span>
+<span id="cb132-4"><a href="#cb132-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"function"</span>: {</span>
+<span id="cb132-5"><a href="#cb132-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">"name"</span>: <span class="st">"get_current_weather"</span>,</span>
+<span id="cb132-6"><a href="#cb132-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">"description"</span>: <span class="st">"Get the current weather in a given location"</span>,</span>
+<span id="cb132-7"><a href="#cb132-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"parameters"</span>: {</span>
+<span id="cb132-8"><a href="#cb132-8" aria-hidden="true" tabindex="-1"></a>                <span class="st">"type"</span>: <span class="st">"object"</span>,</span>
+<span id="cb132-9"><a href="#cb132-9" aria-hidden="true" tabindex="-1"></a>                <span class="st">"properties"</span>: {</span>
+<span id="cb132-10"><a href="#cb132-10" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"location"</span>: {<span class="st">"type"</span>:<span class="st">"string"</span>, <span class="st">"description"</span>:<span class="st">"The city e.g. Reims"</span>},</span>
+<span id="cb132-11"><a href="#cb132-11" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"unit"</span>: {<span class="st">"type"</span>:<span class="st">"string"</span>, <span class="st">"enum"</span>:[<span class="st">"celsius"</span>, <span class="st">"fahrenheit"</span>]},</span>
+<span id="cb132-12"><a href="#cb132-12" aria-hidden="true" tabindex="-1"></a>                },</span>
+<span id="cb132-13"><a href="#cb132-13" aria-hidden="true" tabindex="-1"></a>                <span class="st">"required"</span>: [<span class="st">"location"</span>],</span>
+<span id="cb132-14"><a href="#cb132-14" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb132-15"><a href="#cb132-15" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb132-16"><a href="#cb132-16" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb132-17"><a href="#cb132-17" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-161" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb133"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.ant, messages<span class="op">=</span>mk_msgs(<span class="st">"Is it raining in Reims?"</span>), tools<span class="op">=</span>tools)</span>
+<span id="cb133-2"><a href="#cb133-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-4a571e36-69d8-472c-8564-1e8056f6c849', created=1764679337, model='claude-sonnet-4-20250514', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='tool_calls', index=0, message=Message(content=None, role='assistant', tool_calls=[ChatCompletionMessageToolCall(index=0, function=Function(arguments='{"location": "Reims"}', name='get_current_weather'), id='toolu_017sHr4VFzg6Nh7jt8wSescj', type='function')], function_call=None, provider_specific_fields={'citations': None, 'thinking_blocks': None}))], usage=Usage(completion_tokens=57, prompt_tokens=427, total_tokens=484, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=0, text_tokens=None, image_tokens=None), cache_creation_input_tokens=0, cache_read_input_tokens=0))</code></pre>
+</div>
+</div>
+<div id="cell-162" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb135"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb135-1"><a href="#cb135-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.ant, messages<span class="op">=</span>mk_msgs(<span class="st">"Is it raining in Reims?"</span>), tools<span class="op">=</span>tools)</span>
+<span id="cb135-2"><a href="#cb135-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='chatcmpl-807802a2-39df-47d6-b24b-946ece4c1d60', created=1764679337, model='claude-sonnet-4-20250514', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='tool_calls', index=0, message=Message(content=None, role='assistant', tool_calls=[ChatCompletionMessageToolCall(index=0, function=Function(arguments='{"location": "Reims"}', name='get_current_weather'), id='toolu_017sHr4VFzg6Nh7jt8wSescj', type='function')], function_call=None, provider_specific_fields={'citations': None, 'thinking_blocks': None}))], usage=Usage(completion_tokens=57, prompt_tokens=427, total_tokens=484, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=0, text_tokens=None, image_tokens=None), cache_creation_input_tokens=0, cache_read_input_tokens=0))</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="multipart-request" class="level3">
+<h3 class="anchored" data-anchor-id="multipart-request">Multipart Request</h3>
+<div id="cell-164" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb137"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a>cli <span class="op">=</span> Anthropic()</span>
+<span id="cb137-2"><a href="#cb137-2" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> cli.beta.files.upload(<span class="bu">file</span><span class="op">=</span>(<span class="st">"ex.txt"</span>, <span class="st">b"hello world"</span>, <span class="st">"text/plain"</span>))</span>
+<span id="cb137-3"><a href="#cb137-3" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>FileMetadata(id='file_011CVhstprQYGfRzyf5RpTWu', created_at=datetime.datetime(2025, 12, 2, 12, 41, 59, 74000, tzinfo=datetime.timezone.utc), filename='ex.txt', mime_type='text/plain', size_bytes=11, type='file', downloadable=False)</code></pre>
+</div>
+</div>
+<div id="cell-165" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb139"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb139-1"><a href="#cb139-1" aria-hidden="true" tabindex="-1"></a>cli <span class="op">=</span> Anthropic()</span>
+<span id="cb139-2"><a href="#cb139-2" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> cli.beta.files.upload(<span class="bu">file</span><span class="op">=</span>(<span class="st">"ex.txt"</span>, <span class="st">b"hello world"</span>, <span class="st">"text/plain"</span>))</span>
+<span id="cb139-3"><a href="#cb139-3" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>FileMetadata(id='file_011CVhstprQYGfRzyf5RpTWu', created_at=datetime.datetime(2025, 12, 2, 12, 41, 59, 74000, tzinfo=datetime.timezone.utc), filename='ex.txt', mime_type='text/plain', size_bytes=11, type='file', downloadable=False)</code></pre>
+</div>
+</div>
+</section>
+<section id="gemini-model-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="gemini-model-comparison">Gemini Model Comparison</h3>
+<p>When LiteLLM calls Gemini it includes the model name in the url. Let’s test that we can run the same prompt with two different Gemini models.</p>
+<div id="cell-168" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb141"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb141-1"><a href="#cb141-1" aria-hidden="true" tabindex="-1"></a>mods.gem</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>'gemini/gemini-2.0-flash'</code></pre>
+</div>
+</div>
+<div id="cell-169" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb143"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span>mods.gem, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: gem different models..."</span>))</span>
+<span id="cb143-2"><a href="#cb143-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='l94uabyuKYKlkdUPh6DpkQg', created=1764679338, model='gemini-2.0-flash', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='stop', index=0, message=Message(content='Streamlined\n', role='assistant', tool_calls=None, function_call=None, provider_specific_fields=None))], usage=Usage(completion_tokens=3, prompt_tokens=11, total_tokens=14, completion_tokens_details=None, prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=None, text_tokens=11, image_tokens=None)), vertex_ai_grounding_metadata=[], vertex_ai_url_context_metadata=[], vertex_ai_safety_results=[], vertex_ai_citation_metadata=[])</code></pre>
+</div>
+</div>
+<div id="cell-170" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb145-1"><a href="#cb145-1" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> completion(model<span class="op">=</span><span class="st">"gemini/gemini-2.5-flash"</span>, messages<span class="op">=</span>mk_msgs(<span class="st">"lite: gem different models..."</span>))</span>
+<span id="cb145-2"><a href="#cb145-2" aria-hidden="true" tabindex="-1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<pre><code>ModelResponse(id='nN4uafGuNYGekdUP0cTEkQM', created=1764679338, model='gemini-2.5-flash', object='chat.completion', system_fingerprint=None, choices=[Choices(finish_reason='stop', index=0, message=Message(content='Versatile', role='assistant', tool_calls=None, function_call=None, provider_specific_fields=None))], usage=Usage(completion_tokens=867, prompt_tokens=12, total_tokens=879, completion_tokens_details=CompletionTokensDetailsWrapper(accepted_prediction_tokens=None, audio_tokens=None, reasoning_tokens=865, rejected_prediction_tokens=None, text_tokens=2), prompt_tokens_details=PromptTokensDetailsWrapper(audio_tokens=None, cached_tokens=None, text_tokens=12, image_tokens=None)), vertex_ai_grounding_metadata=[], vertex_ai_url_context_metadata=[], vertex_ai_safety_results=[], vertex_ai_citation_metadata=[])</code></pre>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/AnswerDotAI\.github\.io\/cachy");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/AnswerDotAI/cachy/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
