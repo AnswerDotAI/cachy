@@ -35,7 +35,7 @@ def _content(r):
 # %% ../nbs/00_core.ipynb
 def _key(r, is_stream=False):
     "Create a unique, deterministic id from the request `r`."
-    return hashlib.sha256(f"{r.url.host}{is_stream}".encode() + _content(r)).hexdigest()[:8]
+    return hashlib.sha256(f"{r.url.copy_remove_param('key')}{is_stream}".encode() + _content(r)).hexdigest()[:8]
 
 # %% ../nbs/00_core.ipynb
 def _apply_async_patch(cfp, doms):    

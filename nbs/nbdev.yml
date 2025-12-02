@@ -2,7 +2,7 @@ project:
   output-dir: _docs
 
 website:
-  title: "cachy"
+  title: "pycachy"
   site-url: "https://AnswerDotAI.github.io/cachy"
   description: "Cache your API calls with a single line of code. No mocks, no fixtures. Just faster, cleaner code."
   repo-branch: main
