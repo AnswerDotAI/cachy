@@ -19,11 +19,11 @@ def _should_cache(url, doms): return any(dom in str(url) for dom in doms)
 def _cache(key, cfp):
     with open(cfp, "r") as f:
         line = first(f, lambda l: json.loads(l)["key"] == key)
-        return json.loads(line)["response"] if line else None
+        return json.loads(line) if line else None
 
 # %% ../nbs/00_core.ipynb
-def _write_cache(key, content, cfp):
-    with open(cfp, "a") as f: f.write(json.dumps({"key":key, "response": content})+"\n")
+def _write_cache(key, content, cfp, hdrs):
+    with open(cfp, "a") as f: f.write(json.dumps({"key":key, "response": content, "headers":hdrs})+"\n")
 
 # %% ../nbs/00_core.ipynb
 def _content(r):
@@ -38,37 +38,42 @@ def _key(r, is_stream=False):
     return hashlib.sha256(f"{r.url.copy_remove_param('key')}{is_stream}".encode() + _content(r)).hexdigest()[:8]
 
 # %% ../nbs/00_core.ipynb
-def _apply_async_patch(cfp, doms):    
+def _res_hdrs(res, hdrs=None): return {k: v for k, v in res.headers.items() if k.lower() in hdrs} if hdrs else None
+
+# %% ../nbs/00_core.ipynb
+def _apply_async_patch(cfp, doms, hdrs):    
     @patch
     async def send(self:httpx._client.AsyncClient, r, **kwargs):
         is_stream = kwargs.get("stream")
         if not _should_cache(r.url, doms): return await self._orig_send(r, **kwargs)
         key = _key(r, is_stream=False)
-        if res := _cache(key, cfp): return httpx.Response(status_code=200, content=res, request=r)
+        if res := _cache(key,cfp): return httpx.Response(status_code=200, content=res['response'], headers=res.get('headers'), request=r)
         res = await self._orig_send(r, **kwargs)
         content = res.read().decode() if not is_stream else b''.join([c async for c in res.aiter_bytes()]).decode()
-        _write_cache(key, content, cfp)
-        return httpx.Response(status_code=res.status_code, content=content, request=r)
+        headers = _res_hdrs(res, hdrs)
+        _write_cache(key,content,cfp,headers)
+        return httpx.Response(status_code=res.status_code, content=content, headers=headers, request=r)
 
 # %% ../nbs/00_core.ipynb
-def _apply_sync_patch(cfp, doms):    
+def _apply_sync_patch(cfp, doms, hdrs):    
     @patch
     def send(self:httpx._client.Client, r, **kwargs):
         is_stream = kwargs.get("stream")
         if not _should_cache(r.url, doms): return self._orig_send(r, **kwargs)
         key = _key(r, is_stream=False)
-        if res := _cache(key,cfp): return httpx.Response(status_code=200, content=res, request=r)
+        if res := _cache(key,cfp): return httpx.Response(status_code=200, content=res['response'], headers=res.get('headers'), request=r)
         res = self._orig_send(r, **kwargs)
         content = res.read().decode() if not is_stream else b''.join(list(res.iter_bytes())).decode()
-        _write_cache(key,content,cfp)
-        return httpx.Response(status_code=res.status_code, content=content, request=r)
+        headers = _res_hdrs(res, hdrs)
+        _write_cache(key,content,cfp,headers)
+        return httpx.Response(status_code=res.status_code, content=content, headers=headers, request=r)
 
 # %% ../nbs/00_core.ipynb
-def enable_cachy(cache_dir=None, doms=doms):
+def enable_cachy(cache_dir=None, doms=doms, hdrs=[]):
     cfp = Path(cache_dir or getattr(Config.find("settings.ini"), "config_path", ".")) / "cachy.jsonl"
     cfp.touch(exist_ok=True)   
-    _apply_sync_patch(cfp, doms)
-    _apply_async_patch(cfp, doms)
+    _apply_sync_patch(cfp, doms, hdrs)
+    _apply_async_patch(cfp, doms, hdrs)
 
 # %% ../nbs/00_core.ipynb
 def disable_cachy():
