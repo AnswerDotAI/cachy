@@ -69,7 +69,8 @@ def _apply_sync_patch(cfp, doms, hdrs):
         return httpx.Response(status_code=res.status_code, content=content, headers=headers, request=r)
 
 # %% ../nbs/00_core.ipynb
-def enable_cachy(cache_dir=None, doms=doms, hdrs=[]):
+def enable_cachy(cache_dir=None, doms=doms, hdrs=None):
+    if hdrs is None: hdrs=[]
     cfp = Path(cache_dir or getattr(Config.find("settings.ini"), "config_path", ".")) / "cachy.jsonl"
     cfp.touch(exist_ok=True)   
     _apply_sync_patch(cfp, doms, hdrs)
