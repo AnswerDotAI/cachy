@@ -3,19 +3,16 @@ requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name="pycachy"
+name = "pycachy"
 dynamic = ["version"]
 description = "Cache your API calls with a single line of code. No mocks, no fixtures. Just faster, cleaner code."
 readme = "README.md"
-requires-python=">=3.9"
+requires-python = ">=3.9"
 license = {text = "Apache-2.0"}
 authors = [{name = "Tommy", email = "tc@answer.ai"}]
 keywords = ['nbdev', 'jupyter', 'notebook', 'python']
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3 :: Only",
-]
-dependencies = ["fastcore","httpx"]
+classifiers = ["Natural Language :: English", "Intended Audience :: Developers", "Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3 :: Only"]
+dependencies = ['fastcore', 'httpx']
 
 [project.urls]
 Repository = "https://github.com/AnswerDotAI/cachy"
@@ -24,14 +21,14 @@ Documentation = "https://AnswerDotAI.github.io/cachy"
 [project.entry-points.nbdev]
 cachy = "cachy._modidx:d"
 
+[project.optional-dependencies]
+dev = ['openai', 'anthropic', 'litellm', 'nbdev']
+
 [tool.setuptools.dynamic]
 version = {attr = "cachy.__version__"}
 
 [tool.setuptools.packages.find]
 include = ["cachy"]
-
-[project.optional-dependencies]
-dev = ["openai","anthropic","litellm","nbdev"]
 
 [tool.nbdev]
 custom_sidebar = false
