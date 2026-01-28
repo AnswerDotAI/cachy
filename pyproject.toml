@@ -3,7 +3,7 @@ requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pycachy"
+name = "cachy"
 dynamic = ["version"]
 description = "Cache your API calls with a single line of code. No mocks, no fixtures. Just faster, cleaner code."
 readme = "README.md"
@@ -22,7 +22,7 @@ Documentation = "https://AnswerDotAI.github.io/cachy"
 cachy = "cachy._modidx:d"
 
 [project.optional-dependencies]
-dev = ['openai', 'anthropic', 'litellm', 'nbdev']
+dev = ['openai', 'anthropic', 'litellm==1.80.11', 'google-genai', 'nbdev']
 
 [tool.setuptools.dynamic]
 version = {attr = "cachy.__version__"}
