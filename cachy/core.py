@@ -71,7 +71,7 @@ def _apply_sync_patch(cfp, doms, hdrs):
 # %% ../nbs/00_core.ipynb #f05ad1d1
 def enable_cachy(cache_dir=None, doms=doms, hdrs=None):
     if hdrs is None: hdrs=[]
-    cfp = Path(cache_dir or getattr(Config.find("settings.ini"), "config_path", ".")) / "cachy.jsonl"
+    cfp = Path(cache_dir or find_file_parents('pyproject.toml')) / "cachy.jsonl"
     cfp.touch(exist_ok=True)   
     _apply_sync_patch(cfp, doms, hdrs)
     _apply_async_patch(cfp, doms, hdrs)

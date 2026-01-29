@@ -32,4 +32,4 @@ include = ["cachy"]
 
 [tool.nbdev]
 custom_sidebar = false
-title = 'pycachy'
+lib_path = "cachy"
