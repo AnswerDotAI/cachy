@@ -88,52 +88,7 @@ r = cli.responses.create(model="gpt-4.1", input="Hey!")
 r
 ```
 
-Hey! How can I help you today? 😊
-
-<details>
-
-- id: resp_68b9978ecec48196aa3e77b09ed41c6403f00c61bc19c097
-- created_at: 1756993423.0
-- error: None
-- incomplete_details: None
-- instructions: None
-- metadata: {}
-- model: gpt-4.1-2025-04-14
-- object: response
-- output:
-  \[ResponseOutputMessage(id=‘msg_68b9978f9f70819684b17b0f21072a9003f00c61bc19c097’,
-  content=\[ResponseOutputText(annotations=\[\], text=‘Hey! How can I
-  help you today? 😊’, type=‘output_text’, logprobs=\[\])\],
-  role=‘assistant’, status=‘completed’, type=‘message’)\]
-- parallel_tool_calls: True
-- temperature: 1.0
-- tool_choice: auto
-- tools: \[\]
-- top_p: 1.0
-- background: False
-- conversation: None
-- max_output_tokens: None
-- max_tool_calls: None
-- previous_response_id: None
-- prompt: None
-- prompt_cache_key: None
-- reasoning: Reasoning(effort=None, generate_summary=None, summary=None)
-- safety_identifier: None
-- service_tier: default
-- status: completed
-- text: ResponseTextConfig(format=ResponseFormatText(type=‘text’),
-  verbosity=‘medium’)
-- top_logprobs: 0
-- truncation: disabled
-- usage: ResponseUsage(input_tokens=9,
-  input_tokens_details=InputTokensDetails(cached_tokens=0),
-  output_tokens=11,
-  output_tokens_details=OutputTokensDetails(reasoning_tokens=0),
-  total_tokens=20)
-- user: None
-- store: True
-
-</details>
+    Response(id='resp_0f917a6452ee099400697b191473c48191b8e4f6e76e0add02', created_at=1769675028.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4.1-2025-04-14', object='response', output=[ResponseOutputMessage(id='msg_0f917a6452ee099400697b1914af1081919353425f8cd2d7d7', content=[ResponseOutputText(annotations=[], text='Hey! How can I help you today? 😊', type='output_text', logprobs=[])], role='assistant', status='completed', type='message')], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, completed_at=1769675028.0, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, prompt_cache_retention=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='default', status='completed', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=ResponseUsage(input_tokens=9, input_tokens_details=InputTokensDetails(cached_tokens=0), output_tokens=11, output_tokens_details=OutputTokensDetails(reasoning_tokens=0), total_tokens=20), user=None, billing={'payer': 'developer'}, frequency_penalty=0.0, presence_penalty=0.0, store=True)
 
 If you run the same request again it will read it from the cache.
 
@@ -142,49 +97,4 @@ r = cli.responses.create(model="gpt-4.1", input="Hey!")
 r
 ```
 
-Hey! How can I help you today? 😊
-
-<details>
-
-- id: resp_68b9978ecec48196aa3e77b09ed41c6403f00c61bc19c097
-- created_at: 1756993423.0
-- error: None
-- incomplete_details: None
-- instructions: None
-- metadata: {}
-- model: gpt-4.1-2025-04-14
-- object: response
-- output:
-  \[ResponseOutputMessage(id=‘msg_68b9978f9f70819684b17b0f21072a9003f00c61bc19c097’,
-  content=\[ResponseOutputText(annotations=\[\], text=‘Hey! How can I
-  help you today? 😊’, type=‘output_text’, logprobs=\[\])\],
-  role=‘assistant’, status=‘completed’, type=‘message’)\]
-- parallel_tool_calls: True
-- temperature: 1.0
-- tool_choice: auto
-- tools: \[\]
-- top_p: 1.0
-- background: False
-- conversation: None
-- max_output_tokens: None
-- max_tool_calls: None
-- previous_response_id: None
-- prompt: None
-- prompt_cache_key: None
-- reasoning: Reasoning(effort=None, generate_summary=None, summary=None)
-- safety_identifier: None
-- service_tier: default
-- status: completed
-- text: ResponseTextConfig(format=ResponseFormatText(type=‘text’),
-  verbosity=‘medium’)
-- top_logprobs: 0
-- truncation: disabled
-- usage: ResponseUsage(input_tokens=9,
-  input_tokens_details=InputTokensDetails(cached_tokens=0),
-  output_tokens=11,
-  output_tokens_details=OutputTokensDetails(reasoning_tokens=0),
-  total_tokens=20)
-- user: None
-- store: True
-
-</details>
+    Response(id='resp_0f917a6452ee099400697b191473c48191b8e4f6e76e0add02', created_at=1769675028.0, error=None, incomplete_details=None, instructions=None, metadata={}, model='gpt-4.1-2025-04-14', object='response', output=[ResponseOutputMessage(id='msg_0f917a6452ee099400697b1914af1081919353425f8cd2d7d7', content=[ResponseOutputText(annotations=[], text='Hey! How can I help you today? 😊', type='output_text', logprobs=[])], role='assistant', status='completed', type='message')], parallel_tool_calls=True, temperature=1.0, tool_choice='auto', tools=[], top_p=1.0, background=False, completed_at=1769675028.0, conversation=None, max_output_tokens=None, max_tool_calls=None, previous_response_id=None, prompt=None, prompt_cache_key=None, prompt_cache_retention=None, reasoning=Reasoning(effort=None, generate_summary=None, summary=None), safety_identifier=None, service_tier='default', status='completed', text=ResponseTextConfig(format=ResponseFormatText(type='text'), verbosity='medium'), top_logprobs=0, truncation='disabled', usage=ResponseUsage(input_tokens=9, input_tokens_details=InputTokensDetails(cached_tokens=0), output_tokens=11, output_tokens_details=OutputTokensDetails(reasoning_tokens=0), total_tokens=20), user=None, billing={'payer': 'developer'}, frequency_penalty=0.0, presence_penalty=0.0, store=True)
