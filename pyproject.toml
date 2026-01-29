@@ -22,7 +22,7 @@ Documentation = "https://AnswerDotAI.github.io/cachy"
 cachy = "cachy._modidx:d"
 
 [project.optional-dependencies]
-dev = ['openai', 'anthropic', 'litellm', 'nbdev']
+dev = ['openai', 'anthropic', 'litellm', 'nbdev', 'google-genai']
 
 [tool.setuptools.dynamic]
 version = {attr = "cachy.__version__"}
