@@ -1,0 +1,15 @@
+name: CI
+on: [workflow_dispatch, pull_request, push]
+
+env:
+  ANTHROPIC_API_KEY: "sk-xxx"
+  GEMINI_API_KEY: "AIzaSyFakeKeyForCITesting123456789"
+  OPENAI_API_KEY: "sk-xxx"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: answerdotai/workflows/nbdev3-ci@master
+        with:
+          pre: 1
