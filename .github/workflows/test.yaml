@@ -3,7 +3,7 @@ on: [workflow_dispatch, pull_request, push]
 
 env:
   ANTHROPIC_API_KEY: "sk-xxx"
-  GEMINI_API_KEY: "sk-xxx"
+  GEMINI_API_KEY: "AIzaSyFakeKeyForCITesting123456789"
   OPENAI_API_KEY: "sk-xxx"
 
 jobs:
