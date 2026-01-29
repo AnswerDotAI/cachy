@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.6
+
+### New Features
+
+- Support allowlisted headers ([#11](https://github.com/AnswerDotAI/cachy/issues/11))
+
+
 ## 0.0.5
 
 ### New Features
