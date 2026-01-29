@@ -71,6 +71,7 @@ def _apply_sync_patch(cfp, doms, hdrs):
 # %% ../nbs/00_core.ipynb #f05ad1d1
 def enable_cachy(cache_dir=None, doms=doms, hdrs=None):
     if hdrs is None: hdrs=[]
+    if cache_dir is None and os.getenv("CI"): cache_dir = os.getenv("GITHUB_WORKSPACE")
     cfp = Path(cache_dir or find_file_parents("pyproject.toml") or ".") / "cachy.jsonl"
     cfp.touch(exist_ok=True)   
     _apply_sync_patch(cfp, doms, hdrs)
