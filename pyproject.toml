@@ -3,7 +3,7 @@ requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cachy"
+name = "pycachy"
 dynamic = ["version"]
 description = "Cache your API calls with a single line of code. No mocks, no fixtures. Just faster, cleaner code."
 readme = "README.md"
