@@ -2,6 +2,17 @@
 
 <!-- do not remove -->
 
+## 0.0.7
+
+### New Features
+
+- Add debug logging to cache hits/misses and make `enable_cachy` idempotent ([#17](https://github.com/AnswerDotAI/cachy/issues/17))
+
+### Bugs Squashed
+
+- Rename package from cachy to pycachy to align with PyPI ([#16](https://github.com/AnswerDotAI/cachy/pull/16)), thanks to [@RensDimmendaal](https://github.com/RensDimmendaal)
+
+
 ## 0.0.6
 
 ### New Features
