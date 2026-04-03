@@ -22,8 +22,8 @@ def _cache(key, cfp):
         return json.loads(line) if line else None
 
 # %% ../nbs/00_core.ipynb #72a0213b
-def _write_cache(key, content, cfp, hdrs):
-    with open(cfp, "a") as f: f.write(json.dumps({"key":key, "response": content, "headers":hdrs})+"\n")
+def _write_cache(key, content, cfp, hdrs, status_code=200):
+    with open(cfp, "a") as f: f.write(json.dumps({"key":key, "response": content, "headers":hdrs, "status_code":status_code})+"\n")
 
 # %% ../nbs/00_core.ipynb #3c7fca19
 def _content(r):
@@ -49,12 +49,12 @@ def _apply_async_patch(cfp, doms, hdrs, debug=False):
         key = _key(r, is_stream=False)
         if res := _cache(key,cfp):
             if debug: print(f"🟢 HIT {key}\n{r.content}")
-            return httpx.Response(status_code=200, content=res['response'], headers=res.get('headers'), request=r)
+            return httpx.Response(status_code=res.get('status_code', 200), content=res['response'], headers=res.get('headers'), request=r)
         res = await self._orig_send(r, **kwargs)
         content = res.read().decode() if not is_stream else b''.join([c async for c in res.aiter_bytes()]).decode()
         if debug: print(f"🔴 MISS {key}\n{r.content}")
         headers = _res_hdrs(res, hdrs)
-        _write_cache(key,content,cfp,headers)
+        _write_cache(key,content,cfp,headers,res.status_code)
         return httpx.Response(status_code=res.status_code, content=content, headers=headers, request=r)
 
 # %% ../nbs/00_core.ipynb #950030b0
@@ -66,12 +66,12 @@ def _apply_sync_patch(cfp, doms, hdrs, debug=False):
         key = _key(r, is_stream=False)
         if res := _cache(key,cfp):
             if debug: print(f"🟢 HIT {key}\n{r.content}")
-            return httpx.Response(status_code=200, content=res['response'], headers=res.get('headers'), request=r)
+            return httpx.Response(status_code=res.get('status_code', 200), content=res['response'], headers=res.get('headers'), request=r)
         res = self._orig_send(r, **kwargs)
         content = res.read().decode() if not is_stream else b''.join(list(res.iter_bytes())).decode()
         if debug: print(f"🔴 MISS {key}\n{r.content}")
         headers = _res_hdrs(res, hdrs)
-        _write_cache(key,content,cfp,headers)
+        _write_cache(key,content,cfp,headers,res.status_code)
         return httpx.Response(status_code=res.status_code, content=content, headers=headers, request=r)
 
 # %% ../nbs/00_core.ipynb #3be9fe57
