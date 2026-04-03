@@ -43,7 +43,8 @@ def _res_hdrs(res, hdrs=None): return {k: v for k, v in res.headers.items() if k
 # %% ../nbs/00_core.ipynb #37ad35fa
 def _apply_async_patch(cfp, doms, hdrs, debug=False):    
     @patch
-    async def send(self:httpx._client.AsyncClient, r, **kwargs):
+    async def send(self:httpx._client.AsyncClient, request, **kwargs):
+        r = request
         is_stream = kwargs.get("stream")
         if not _should_cache(r.url, doms): return await self._orig_send(r, **kwargs)
         key = _key(r, is_stream=False)
@@ -60,7 +61,8 @@ def _apply_async_patch(cfp, doms, hdrs, debug=False):
 # %% ../nbs/00_core.ipynb #950030b0
 def _apply_sync_patch(cfp, doms, hdrs, debug=False):    
     @patch
-    def send(self:httpx._client.Client, r, **kwargs):
+    def send(self:httpx._client.Client, request, **kwargs):
+        r = request
         is_stream = kwargs.get("stream")
         if not _should_cache(r.url, doms): return self._orig_send(r, **kwargs)
         key = _key(r, is_stream=False)
