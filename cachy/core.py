@@ -6,7 +6,7 @@
 __all__ = ['doms', 'disable_cachy', 'enable_cachy']
 
 # %% ../nbs/00_core.ipynb #fa68c98b
-import hashlib,httpx,json
+import base64,hashlib,httpx,json
 from fastcore.utils import *
 
 # %% ../nbs/00_core.ipynb #527e76df
@@ -22,8 +22,8 @@ def _cache(key, cfp):
         return json.loads(line) if line else None
 
 # %% ../nbs/00_core.ipynb #72a0213b
-def _write_cache(key, content, cfp, hdrs, status_code=200):
-    with open(cfp, "a") as f: f.write(json.dumps({"key":key, "response": content, "headers":hdrs, "status_code":status_code})+"\n")
+def _write_cache(key, content, cfp, hdrs, status_code=200, binary=False):
+    with open(cfp, "a") as f: f.write(json.dumps({"key":key, "response": content, "headers":hdrs, "status_code":status_code, "binary":binary})+"\n")
 
 # %% ../nbs/00_core.ipynb #3c7fca19
 def _content(r):
@@ -40,6 +40,18 @@ def _key(r, is_stream=False):
 # %% ../nbs/00_core.ipynb #25ced1ba
 def _res_hdrs(res, hdrs=None): return {k: v for k, v in res.headers.items() if k.lower() in hdrs} if hdrs else None
 
+# %% ../nbs/00_core.ipynb #60b4da2a
+def _is_text(res):
+    "Check if response content type is text-like."
+    ct = res.headers.get("content-type", "")
+    return any(t in ct for t in ("text/", "json", "xml", "javascript", "html"))
+
+# %% ../nbs/00_core.ipynb #60b4da2a
+def _is_text(res):
+    "Check if response content type is text-like."
+    ct = res.headers.get("content-type", "")
+    return any(t in ct for t in ("text/", "json", "xml", "javascript", "html"))
+
 # %% ../nbs/00_core.ipynb #37ad35fa
 def _apply_async_patch(cfp, doms, hdrs, debug=False):    
     @patch
@@ -50,13 +62,17 @@ def _apply_async_patch(cfp, doms, hdrs, debug=False):
         key = _key(r, is_stream=False)
         if res := _cache(key,cfp):
             if debug: print(f"🟢 HIT {key}\n{r.content}")
-            return httpx.Response(status_code=res.get('status_code', 200), content=res['response'], headers=res.get('headers'), request=r)
+            content = res['response']
+            if res.get('binary'): content = base64.b64decode(content)
+            return httpx.Response(status_code=res.get('status_code', 200), content=content, headers=res.get('headers'), request=r)
         res = await self._orig_send(r, **kwargs)
-        content = res.read().decode() if not is_stream else b''.join([c async for c in res.aiter_bytes()]).decode()
+        raw = res.read() if not is_stream else b''.join([c async for c in res.aiter_bytes()])
+        binary = not _is_text(res)
+        content = base64.b64encode(raw).decode() if binary else raw.decode()
         if debug: print(f"🔴 MISS {key}\n{r.content}")
         headers = _res_hdrs(res, hdrs)
-        _write_cache(key,content,cfp,headers,res.status_code)
-        return httpx.Response(status_code=res.status_code, content=content, headers=headers, request=r)
+        _write_cache(key, content, cfp, headers, res.status_code, binary=binary)
+        return httpx.Response(status_code=res.status_code, content=raw, headers=headers, request=r)
 
 # %% ../nbs/00_core.ipynb #950030b0
 def _apply_sync_patch(cfp, doms, hdrs, debug=False):    
@@ -68,13 +84,17 @@ def _apply_sync_patch(cfp, doms, hdrs, debug=False):
         key = _key(r, is_stream=False)
         if res := _cache(key,cfp):
             if debug: print(f"🟢 HIT {key}\n{r.content}")
-            return httpx.Response(status_code=res.get('status_code', 200), content=res['response'], headers=res.get('headers'), request=r)
+            content = res['response']
+            if res.get('binary'): content = base64.b64decode(content)
+            return httpx.Response(status_code=res.get('status_code', 200), content=content, headers=res.get('headers'), request=r)
         res = self._orig_send(r, **kwargs)
-        content = res.read().decode() if not is_stream else b''.join(list(res.iter_bytes())).decode()
+        raw = res.read() if not is_stream else b''.join(list(res.iter_bytes()))
+        binary = not _is_text(res)
+        content = base64.b64encode(raw).decode() if binary else raw.decode()
         if debug: print(f"🔴 MISS {key}\n{r.content}")
         headers = _res_hdrs(res, hdrs)
-        _write_cache(key,content,cfp,headers,res.status_code)
-        return httpx.Response(status_code=res.status_code, content=content, headers=headers, request=r)
+        _write_cache(key, content, cfp, headers, res.status_code, binary=binary)
+        return httpx.Response(status_code=res.status_code, content=raw, headers=headers, request=r)
 
 # %% ../nbs/00_core.ipynb #3be9fe57
 def disable_cachy():
