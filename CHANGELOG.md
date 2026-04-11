@@ -2,6 +2,11 @@
 
 <!-- do not remove -->
 
+## 0.0.8
+
+- Handle binary
+
+
 ## 0.0.7
 
 ### New Features
