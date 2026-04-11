@@ -46,12 +46,6 @@ def _is_text(res):
     ct = res.headers.get("content-type", "")
     return any(t in ct for t in ("text/", "json", "xml", "javascript", "html"))
 
-# %% ../nbs/00_core.ipynb #60b4da2a
-def _is_text(res):
-    "Check if response content type is text-like."
-    ct = res.headers.get("content-type", "")
-    return any(t in ct for t in ("text/", "json", "xml", "javascript", "html"))
-
 # %% ../nbs/00_core.ipynb #37ad35fa
 def _apply_async_patch(cfp, doms, hdrs, debug=False):    
     @patch
