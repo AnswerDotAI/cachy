@@ -33,9 +33,17 @@ def _content(r):
     return r.content.replace(boundary, b"cachy-boundary") if boundary else r.content
 
 # %% ../nbs/00_core.ipynb #a69ba22c
+def _norm_content(r):
+    "Normalize JSON bodies by sorting keys so semantically-equal payloads hash the same."
+    c = _content(r)
+    if 'json' in r.headers.get('content-type', '').lower():
+        try: return json.dumps(json.loads(c), sort_keys=True).encode()
+        except Exception: pass
+    return c
+
 def _key(r, is_stream=False):
     "Create a unique, deterministic id from the request `r`."
-    return hashlib.sha256(f"{r.url.copy_remove_param('key')}{is_stream}".encode() + _content(r)).hexdigest()[:8]
+    return hashlib.sha256(f"{r.url.copy_remove_param('key')}{is_stream}".encode() + _norm_content(r)).hexdigest()[:8]
 
 # %% ../nbs/00_core.ipynb #25ced1ba
 def _res_hdrs(res, hdrs=None): return {k: v for k, v in res.headers.items() if k.lower() in hdrs} if hdrs else None
