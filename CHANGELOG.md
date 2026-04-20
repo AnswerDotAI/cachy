@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.9
+
+### New Features
+
+- Sort json payload for determinstic key ([#21](https://github.com/AnswerDotAI/cachy/pull/21)), thanks to [@KeremTurgutlu](https://github.com/KeremTurgutlu)
+
+
 ## 0.0.8
 
 - Handle binary
