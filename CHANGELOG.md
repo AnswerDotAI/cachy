@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.10
+
+### New Features
+
+- Add more domains ([#22](https://github.com/AnswerDotAI/cachy/issues/22))
+
+
 ## 0.0.9
 
 ### New Features
