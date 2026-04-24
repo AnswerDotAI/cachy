@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.11
+
+### New Features
+
+- Add chatgpt.com ([#23](https://github.com/AnswerDotAI/cachy/issues/23))
+
+
 ## 0.0.10
 
 ### New Features
