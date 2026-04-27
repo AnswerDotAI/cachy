@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.12
+
+### New Features
+
+- Refactor send logic into shared helpers, add file locking, and auto-locate cache file in enable_cachy ([#25](https://github.com/AnswerDotAI/cachy/issues/25))
+
+
 ## 0.0.11
 
 ### New Features
