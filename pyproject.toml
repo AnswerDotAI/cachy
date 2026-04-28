@@ -31,7 +31,7 @@ version = {attr = "cachy.__version__"}
 include = ["cachy"]
 
 [tool.nbdev]
-allowed_metadata_keys = ['solveit_dialog_mode', 'solveit_ver']
-allowed_cell_metadata_keys = ["solveit_ai"]
+allowed_metadata_keys = ['solveit']
+allowed_cell_metadata_keys = ['solveit_ai']
 custom_sidebar = false
 lib_path = "cachy"
