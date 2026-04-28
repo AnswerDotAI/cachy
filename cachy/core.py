@@ -7,6 +7,7 @@ __all__ = ['doms', 'enable_cachy', 'disable_cachy']
 
 # %% ../nbs/00_core.ipynb #fa68c98b
 import base64,hashlib,httpx,json,fcntl
+from httpx import AsyncClient
 from fastcore.utils import *
 
 # %% ../nbs/00_core.ipynb #527e76df
@@ -49,7 +50,22 @@ def _content(r):
     boundary = httpx._multipart.get_multipart_boundary_from_content_type(r.headers.get("Content-Type", "").encode())
     return r.content.replace(boundary, b"cachy-boundary") if boundary else r.content
 
-# %% ../nbs/00_core.ipynb #a69ba22c
+# %% ../nbs/00_core.ipynb #8b2ff9ca
+_norm_pats = [
+    (re.compile(r'/ipykernel_\d+/\d+\.py'), '/ipykernel_N/X.py'),
+    (re.compile(r'<ipython-input-\d+-\w+>'), '<ipython-input>'),
+    (re.compile(r'/var/folders/[\w|/]+'), '/tmp/tmpT'),
+    (re.compile(r'/tmp/tmp\w+'), '/tmp/tmpX'),
+    (re.compile(r'ipykernel_\d+'), 'ipykernel_N'),
+    (re.compile(r'0x[0-9a-fA-F]{6,}'), '0xMEM'),
+    (re.compile(r'line \d+, in'), 'line N, in'),
+]
+
+def _normalize(b):
+    s = b.decode('utf-8', errors='replace')
+    for pat,repl in _norm_pats: s = pat.sub(repl, s)
+    return s.encode('utf-8')
+
 def _norm_content(r):
     "Normalize JSON bodies by sorting keys so semantically-equal payloads hash the same."
     c = _content(r)
@@ -60,7 +76,7 @@ def _norm_content(r):
 
 def _key(r, is_stream=False):
     "Create a unique, deterministic id from the request `r`."
-    return hashlib.sha256(f"{r.url.copy_remove_param('key')}{is_stream}".encode() + _norm_content(r)).hexdigest()[:8]
+    return hashlib.sha256(f"{r.url.copy_remove_param('key')}{is_stream}".encode() + _normalize(_norm_content(r))).hexdigest()[:8]
 
 # %% ../nbs/00_core.ipynb #4cf3ccd9
 def _is_text(res):
@@ -86,59 +102,81 @@ def _resp_from_cache(c, request):
     return httpx.Response(status_code=c.get('status_code', 200), content=content, headers=c.get('headers'), request=request)
 
 # %% ../nbs/00_core.ipynb #4c6a4afd
-def _send(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
-    is_stream = kwargs.get("stream")
-    if not _should_cache(request.url, doms): return self._orig_send(request, **kwargs)
-    key = _key(request, is_stream=is_stream)
+def _check(request, doms, cfp, is_stream, debug):
+    if not _should_cache(request.url, doms):
+        if debug and debug!='miss': print(f"🔴 DOM MISS {request.url}\n{doms}")
+        return None,None
+    key = _key(request, is_stream=bool(is_stream))
     if c := _cache(key, cfp):
-        if debug: print(f"🟢 HIT {key}\n{request.content}")
-        return _resp_from_cache(c, request)
-    res = self._orig_send(request, **kwargs)
-    raw = res.read() if not is_stream else b''.join(list(res.iter_bytes()))
+        if debug and debug!='miss': print(f"🟢 HIT {key}\n{request.content}")
+        return key,_resp_from_cache(c, request)
+    return key,None
+
+def _finalize(key, raw, res, cfp, hdrs, request, debug):
     if debug: print(f"🔴 MISS {key}\n{request.content}")
     headers = _save_resp(key, raw, res, cfp, hdrs)
     return httpx.Response(status_code=res.status_code, content=raw, headers=headers, request=request)
 
+def _send(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
+    is_stream = kwargs.get("stream")
+    key,cached = _check(request, doms, cfp, is_stream, debug)
+    if cached is not None: return cached
+    if key is None: return self._orig_send(request, **kwargs)
+    res = self._orig_send(request, **kwargs)
+    raw = res.read() if not is_stream else b''.join(list(res.iter_bytes()))
+    return _finalize(key, raw, res, cfp, hdrs, request, debug)
+
+async def _asend(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
+    is_stream = kwargs.get("stream")
+    key,cached = _check(request, doms, cfp, is_stream, debug)
+    if cached is not None: return cached
+    if key is None: return await self._orig_send(request, **kwargs)
+    res = await self._orig_send(request, **kwargs)
+    raw = await res.aread() if not is_stream else b''.join([c async for c in res.aiter_bytes()])
+    return _finalize(key, raw, res, cfp, hdrs, request, debug)
+
+async def _ahandle(cfp, doms, self, request, debug=False, hdrs=None):
+    is_stream = request.extensions.get('stream', False)
+    key,cached = _check(request, doms, cfp, is_stream, debug)
+    if cached is not None: return cached
+    if key is None: return await self._orig_handle_async_request(request)
+    res = await self._orig_handle_async_request(request)
+    raw = await res.aread()
+    return _finalize(key, raw, res, cfp, hdrs, request, debug)
+
 # %% ../nbs/00_core.ipynb #99a750c1
 def _apply_sync_patch(cfp, doms, hdrs=None, debug=False):
     @patch
-    def send(self:httpx._client.Client, request, **kwargs):
-        return _send(cfp, doms, self, request, debug=debug, hdrs=hdrs, **kwargs)
+    def send(self:httpx._client.Client, request, **kwargs): return _send(cfp, doms, self, request, debug=debug, hdrs=hdrs, **kwargs)
 
 # %% ../nbs/00_core.ipynb #76a06201
 def _apply_async_patch(cfp, doms, hdrs=None, debug=False):
     @patch
-    async def send(self:httpx._client.AsyncClient, request, **kwargs):
-        is_stream = kwargs.get("stream")
-        if not _should_cache(request.url, doms): return await self._orig_send(request, **kwargs)
-        key = _key(request, is_stream=is_stream)
-        if c := _cache(key, cfp):
-            if debug: print(f"🟢 HIT {key}\n{request.content}")
-            return _resp_from_cache(c, request)
-        res = await self._orig_send(request, **kwargs)
-        raw = await res.aread() if not is_stream else b''.join([c async for c in res.aiter_bytes()])
-        if debug: print(f"🔴 MISS {key}\n{request.content}")
-        headers = _save_resp(key, raw, res, cfp, hdrs)
-        return httpx.Response(status_code=res.status_code, content=raw, headers=headers, request=request)
+    async def send(self:AsyncClient, request, **kwargs): return await _asend(cfp, doms, self, request, debug=debug, hdrs=hdrs, **kwargs)
 
-# %% ../nbs/00_core.ipynb #5b521d28
-def enable_cachy(cache_dir=None, doms=doms, hdrs=None, debug=False):
-    cfp = Path(cache_dir or find_file_parents("pyproject.toml") or ".") / "cachy.jsonl"
-    cfp.touch(exist_ok=True)
-    _apply_sync_patch(cfp, doms, hdrs, debug)
-    _apply_async_patch(cfp, doms, hdrs, debug)
+def _apply_aiohttp_patch(cfp, doms, hdrs=None, debug=False):
+    try: from litellm.llms.custom_httpx.aiohttp_transport import LiteLLMAiohttpTransport
+    except ImportError: return
+    @patch
+    async def handle_async_request(self:LiteLLMAiohttpTransport, request):
+        return await _ahandle(cfp, doms, self, request, debug=debug, hdrs=hdrs)
 
-# %% ../nbs/00_core.ipynb #3be9fe57
-def disable_cachy():
-    if not hasattr(httpx._client.AsyncClient, '_orig_send'): return
-    httpx._client.AsyncClient.send = httpx._client.AsyncClient._orig_send
-    httpx._client.Client.send      = httpx._client.Client._orig_send
-
-# %% ../nbs/00_core.ipynb #a8d53f6a
+# %% ../nbs/00_core.ipynb #d5c98e90
 def enable_cachy(cache_dir=None, doms=doms, hdrs=None, debug=False):
     disable_cachy()
     if hdrs is None: hdrs=[]
     cfp = Path(cache_dir or find_file_parents("pyproject.toml") or ".") / "cachy.jsonl"
-    cfp.touch(exist_ok=True)   
-    _apply_sync_patch(cfp, doms, hdrs, debug)
-    _apply_async_patch(cfp, doms, hdrs, debug)
+    cfp.touch(exist_ok=True)
+    _apply_sync_patch   (cfp, doms, hdrs, debug)
+    _apply_async_patch  (cfp, doms, hdrs, debug)
+    _apply_aiohttp_patch(cfp, doms, hdrs, debug)
+
+# %% ../nbs/00_core.ipynb #3be9fe57
+def disable_cachy():
+    if hasattr(AsyncClient, '_orig_send'):
+        AsyncClient.send  = AsyncClient._orig_send
+        httpx.Client.send = httpx.Client._orig_send
+    try: from litellm.llms.custom_httpx.aiohttp_transport import LiteLLMAiohttpTransport
+    except ImportError: return
+    if hasattr(LiteLLMAiohttpTransport, '_orig_handle_async_request'):
+        LiteLLMAiohttpTransport.handle_async_request = LiteLLMAiohttpTransport._orig_handle_async_request
