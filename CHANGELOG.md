@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.13
+
+### New Features
+
+- Add aiohttp transport support and request body normalization for caching ([#26](https://github.com/AnswerDotAI/cachy/issues/26))
+
+
 ## 0.0.12
 
 ### New Features
