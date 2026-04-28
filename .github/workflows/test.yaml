@@ -2,9 +2,9 @@ name: CI
 on: [workflow_dispatch, pull_request, push]
 
 env:
-  ANTHROPIC_API_KEY: "sk-xxx"
-  GEMINI_API_KEY: "sk-xxx"
-  OPENAI_API_KEY: "sk-xxx"
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
 jobs:
   test:
