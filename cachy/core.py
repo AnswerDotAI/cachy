@@ -12,7 +12,7 @@ from fastcore.utils import *
 
 # %% ../nbs/00_core.ipynb #527e76df
 doms = ("chatgpt.com", "api.openai.com", "api.anthropic.com", "generativelanguage.googleapis.com", "api.deepseek.com",
-    'api.fireworks.ai', 'openrouter.ai', 'api.groq.com', 'api.together.xyz', 'api.mistral.ai', 'api.x.ai')
+    'api.fireworks.ai', 'openrouter.ai', 'api.groq.com', 'api.together.xyz', 'api.mistral.ai', 'api.x.ai', 'api.moonshot.ai')
 
 # %% ../nbs/00_core.ipynb #09571365
 def _should_cache(url, doms): return any(dom in str(url) for dom in doms)
