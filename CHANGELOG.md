@@ -2,6 +2,17 @@
 
 <!-- do not remove -->
 
+## 0.0.15
+
+### New Features
+
+- Add requests library caching support, make `norm_pats` public ([#27](https://github.com/AnswerDotAI/cachy/issues/27))
+
+### Bugs Squashed
+
+- cachy not caching streamed responses ([#24](https://github.com/AnswerDotAI/cachy/issues/24))
+
+
 ## 0.0.13
 
 ### New Features
