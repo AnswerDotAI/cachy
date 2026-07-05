@@ -35,3 +35,6 @@ allowed_metadata_keys = ['solveit']
 allowed_cell_metadata_keys = ['solveit_ai']
 custom_sidebar = false
 lib_path = "cachy"
+
+[tool.chkstyle]
+skip_paths = ["_modidx.py"]
