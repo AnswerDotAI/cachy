@@ -26,20 +26,7 @@ def _cache(key, cfp):
         line = first(f, lambda l: json.loads(l)["key"] == key)
         return json.loads(line) if line else None
 
-#| exports
-def _write_cache(key, content, cfp, hdrs, status_code=200, binary=False):
-    with open(cfp, "a") as f:
-        fcntl.flock(f, fcntl.LOCK_EX)
-        f.write(json.dumps(dict(key=key, response=content, headers=hdrs, status_code=status_code, binary=binary))+"\n")
-
-# %% ../nbs/00_core.ipynb #c1e64d77
-def _cache(key, cfp):
-    if not Path(cfp).exists(): return None
-    with open(cfp) as f:
-        line = first(f, lambda l: json.loads(l)["key"] == key)
-        return json.loads(line) if line else None
-
-#| exports
+# %% ../nbs/00_core.ipynb #d8100f2f
 def _write_cache(key, content, cfp, hdrs, status_code=200, binary=False):
     with open(cfp, "a") as f:
         fcntl.flock(f, fcntl.LOCK_EX)
