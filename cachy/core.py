@@ -124,15 +124,6 @@ async def _asend(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
     raw = await res.aread() if not is_stream else b''.join([c async for c in res.aiter_bytes()])
     return _finalize(key, raw, res, cfp, hdrs, request, debug)
 
-async def _ahandle(cfp, doms, self, request, debug=False, hdrs=None):
-    is_stream = request.extensions.get('stream', False)
-    key,cached = _check(request, doms, cfp, is_stream, debug)
-    if cached is not None: return cached
-    if key is None: return await self._orig_handle_async_request(request)
-    res = await self._orig_handle_async_request(request)
-    raw = await res.aread()
-    return _finalize(key, raw, res, cfp, hdrs, request, debug)
-
 # %% ../nbs/00_core.ipynb #a1340ce5
 def _req_resp_from_cache(c, request):
     "Build a `requests.Response` from cache entry `c`."
@@ -170,13 +161,6 @@ def _apply_async_patch(cfp, doms, hdrs=None, debug=False):
     @patch
     async def send(self:AsyncClient, request, **kwargs): return await _asend(cfp, doms, self, request, debug=debug, hdrs=hdrs, **kwargs)
 
-def _apply_aiohttp_patch(cfp, doms, hdrs=None, debug=False):
-    try: from litellm.llms.custom_httpx.aiohttp_transport import LiteLLMAiohttpTransport
-    except ImportError: return
-    @patch
-    async def handle_async_request(self:LiteLLMAiohttpTransport, request):
-        return await _ahandle(cfp, doms, self, request, debug=debug, hdrs=hdrs)
-
 # %% ../nbs/00_core.ipynb #d5c98e90
 def enable_cachy(cache_dir=None, doms=doms, hdrs=None, debug=False):
     disable_cachy()
@@ -186,7 +170,6 @@ def enable_cachy(cache_dir=None, doms=doms, hdrs=None, debug=False):
     _apply_sync_patch    (cfp, doms, hdrs, debug)
     _apply_async_patch   (cfp, doms, hdrs, debug)
     _apply_requests_patch(cfp, doms, hdrs, debug)
-    _apply_aiohttp_patch (cfp, doms, hdrs, debug)
 
 # %% ../nbs/00_core.ipynb #3be9fe57
 def disable_cachy():
@@ -195,7 +178,3 @@ def disable_cachy():
         httpx.Client.send = httpx.Client._orig_send
     if hasattr(requests.adapters.HTTPAdapter, '_orig_send'):
         requests.adapters.HTTPAdapter.send = requests.adapters.HTTPAdapter._orig_send
-    try: from litellm.llms.custom_httpx.aiohttp_transport import LiteLLMAiohttpTransport
-    except ImportError: return
-    if hasattr(LiteLLMAiohttpTransport, '_orig_handle_async_request'):
-        LiteLLMAiohttpTransport.handle_async_request = LiteLLMAiohttpTransport._orig_handle_async_request
