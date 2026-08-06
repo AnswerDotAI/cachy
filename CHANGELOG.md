@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.17
+
+### New Features
+
+- Remove LiteLLM support and its aiohttp transport patch; switch tests to httpbingo and fastllm AsyncChat for tool calls ([#28](https://github.com/AnswerDotAI/cachy/issues/28))
+
+
 ## 0.0.16
 
 ### New Features
