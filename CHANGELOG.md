@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.18
+
+### New Features
+
+- Prune redundant response echo fields and normalize cached bodies; write cache sorted by response with replace instead of append ([#29](https://github.com/AnswerDotAI/cachy/issues/29))
+
+
 ## 0.0.17
 
 ### New Features
