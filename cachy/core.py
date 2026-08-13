@@ -9,6 +9,8 @@ __all__ = ['doms', 'resp_norm_pats', 'resp_keep', 'norm_pats', 'enable_cachy', '
 
 # %% ../nbs/00_core.ipynb #fa68c98b
 import base64,hashlib,httpx,json,fcntl,requests
+try: import httpx2
+except ImportError: httpx2 = None
 from httpx import AsyncClient
 from fastcore.utils import *
 
@@ -116,10 +118,14 @@ def _save_resp(key, raw, res, cfp, hdrs):
     _write_cache(key, content, cfp, headers, res.status_code, binary=binary)
     return headers
 
+def _resp_cls(request):
+    "The `Response` class of the stack `request` came from."
+    return httpx2.Response if httpx2 and isinstance(request, httpx2.Request) else httpx.Response
+
 def _resp_from_cache(c, request):
     content = c['response']
     if c.get('binary'): content = base64.b64decode(content)
-    return httpx.Response(status_code=c.get('status_code', 200), content=content, headers=c.get('headers'), request=request)
+    return _resp_cls(request)(status_code=c.get('status_code', 200), content=content, headers=c.get('headers'), request=request)
 
 # %% ../nbs/00_core.ipynb #4c6a4afd
 def _check(request, doms, cfp, is_stream, debug, mk_resp=None):
@@ -135,7 +141,7 @@ def _check(request, doms, cfp, is_stream, debug, mk_resp=None):
 def _finalize(key, raw, res, cfp, hdrs, request, debug):
     if debug: print(f"🔴 MISS {key}\n{request.content}")
     headers = _save_resp(key, raw, res, cfp, hdrs)
-    return httpx.Response(status_code=res.status_code, content=raw, headers=headers, request=request)
+    return _resp_cls(request)(status_code=res.status_code, content=raw, headers=headers, request=request)
 
 def _send(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
     is_stream = kwargs.get("stream")
@@ -186,11 +192,17 @@ def _apply_requests_patch(cfp, doms, hdrs=None, debug=False):
 def _apply_sync_patch(cfp, doms, hdrs=None, debug=False):
     @patch
     def send(self:httpx._client.Client, request, **kwargs): return _send(cfp, doms, self, request, debug=debug, hdrs=hdrs, **kwargs)
+    if httpx2:
+        @patch
+        def send(self:httpx2._client.Client, request, **kwargs): return _send(cfp, doms, self, request, debug=debug, hdrs=hdrs, **kwargs)
 
 # %% ../nbs/00_core.ipynb #76a06201
 def _apply_async_patch(cfp, doms, hdrs=None, debug=False):
     @patch
     async def send(self:AsyncClient, request, **kwargs): return await _asend(cfp, doms, self, request, debug=debug, hdrs=hdrs, **kwargs)
+    if httpx2:
+        @patch
+        async def send(self:httpx2.AsyncClient, request, **kwargs): return await _asend(cfp, doms, self, request, debug=debug, hdrs=hdrs, **kwargs)
 
 # %% ../nbs/00_core.ipynb #d5c98e90
 def enable_cachy(cache_dir=None, doms=doms, hdrs=None, debug=False):
@@ -207,5 +219,8 @@ def disable_cachy():
     if hasattr(AsyncClient, '_orig_send'):
         AsyncClient.send  = AsyncClient._orig_send
         httpx.Client.send = httpx.Client._orig_send
+    if httpx2 and hasattr(httpx2.AsyncClient, '_orig_send'):
+        httpx2.AsyncClient.send = httpx2.AsyncClient._orig_send
+        httpx2.Client.send      = httpx2.Client._orig_send
     if hasattr(requests.adapters.HTTPAdapter, '_orig_send'):
         requests.adapters.HTTPAdapter.send = requests.adapters.HTTPAdapter._orig_send
