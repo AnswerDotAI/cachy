@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.19
+
+### New Features
+
+- Add httpx2 support: patch httpx2 sync/async clients and return httpx2 responses from cache when installed ([#30](https://github.com/AnswerDotAI/cachy/issues/30))
+
+
 ## 0.0.18
 
 ### New Features
