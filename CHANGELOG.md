@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.20
+
+### New Features
+
+- norm_pats apply to the URL as well as the body ([#31](https://github.com/AnswerDotAI/cachy/pull/31)), thanks to [@jph00](https://github.com/jph00)
+
+
 ## 0.0.19
 
 ### New Features
