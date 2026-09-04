@@ -98,7 +98,8 @@ def _norm_content(r):
 
 def _key(r, is_stream=False):
     "Create a unique, deterministic id from the request `r`."
-    return hashlib.sha256(f"{r.url.copy_remove_param('key')}{is_stream}".encode() + _normalize(_norm_content(r))).hexdigest()[:8]
+    url = _normalize(str(r.url.copy_remove_param('key')).encode()).decode()
+    return hashlib.sha256(f"{url}{is_stream}".encode() + _normalize(_norm_content(r))).hexdigest()[:8]
 
 # %% ../nbs/00_core.ipynb #4cf3ccd9
 def _is_text(res):
