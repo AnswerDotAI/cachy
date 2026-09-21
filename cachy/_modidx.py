@@ -28,5 +28,7 @@ d = { 'settings': { 'branch': 'main',
                             'cachy.core._send': ('core.html#_send', 'cachy/core.py'),
                             'cachy.core._should_cache': ('core.html#_should_cache', 'cachy/core.py'),
                             'cachy.core._write_cache': ('core.html#_write_cache', 'cachy/core.py'),
+                            'cachy.core.cachy': ('core.html#cachy', 'cachy/core.py'),
                             'cachy.core.disable_cachy': ('core.html#disable_cachy', 'cachy/core.py'),
-                            'cachy.core.enable_cachy': ('core.html#enable_cachy', 'cachy/core.py')}}}
+                            'cachy.core.enable_cachy': ('core.html#enable_cachy', 'cachy/core.py'),
+                            'cachy.core.no_cachy': ('core.html#no_cachy', 'cachy/core.py')}}}
