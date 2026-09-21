@@ -2,11 +2,18 @@
 
 <!-- do not remove -->
 
+## 0.0.21
+
+### New Features
+
+- Add `no_cachy` and cachy context managers for scoped control, and include the Accept header in the cache key ([#32](https://github.com/AnswerDotAI/cachy/issues/32))
+
+
 ## 0.0.20
 
 ### New Features
 
-- norm_pats apply to the URL as well as the body ([#31](https://github.com/AnswerDotAI/cachy/pull/31)), thanks to [@jph00](https://github.com/jph00)
+- `norm_pats` apply to the URL as well as the body ([#31](https://github.com/AnswerDotAI/cachy/pull/31)), thanks to [@jph00](https://github.com/jph00)
 
 
 ## 0.0.19
