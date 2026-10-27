@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.22
+
+### New Features
+
+- Record 4xx responses, normalize `prompt_cache_key`, log miss key inputs via `CACHY_LOG`, hash binary bodies exactly, lock cache writes on dir ([#33](https://github.com/AnswerDotAI/cachy/issues/33))
+
+
 ## 0.0.21
 
 ### New Features
