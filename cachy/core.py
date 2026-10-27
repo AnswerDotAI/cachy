@@ -60,13 +60,15 @@ def _norm_resp(txt):
 # %% ../nbs/00_core.ipynb #d8100f2f
 def _write_cache(key, content, cfp, hdrs, status_code=200, binary=False):
     if not binary: content = _norm_resp(content)
-    with open(cfp, "a+") as lk:
+    cfp = Path(cfp)
+    lk = os.open(cfp.parent, os.O_RDONLY)
+    try:
         fcntl.flock(lk, fcntl.LOCK_EX)
-        lk.seek(0)
-        recs = {(d:=json.loads(l))['key']: d for l in lk if l.strip()}
+        recs = {(d:=json.loads(l))['key']: d for l in cfp.read_text().splitlines() if l.strip()} if cfp.exists() else {}
         recs[key] = dict(key=key, response=content, headers=hdrs, status_code=status_code, binary=binary)
-        with atomic_save(Path(cfp), mode='w') as f:
+        with atomic_save(cfp, mode='w') as f:
             for d in sorted(recs.values(), key=lambda d: (d['response'], d['key'])): f.write(json.dumps(d)+"\n")
+    finally: os.close(lk)
 
 # %% ../nbs/00_core.ipynb #3c7fca19
 def _content(r):
@@ -84,12 +86,12 @@ norm_pats = [
     (re.compile(r'ipykernel_\d+'), 'ipykernel_N'),
     (re.compile(r'0x[0-9a-fA-F]{6,}'), '0xMEM'),
     (re.compile(r'line \d+, in'), 'line N, in'),
+    (re.compile(r'"prompt_cache_key"\s*:\s*"[^"]*"'), '"prompt_cache_key":"notebook"'),
 ]
 
-def _normalize(b):
-    s = b.decode('utf-8', errors='replace')
+def _normalize(s):
     for pat,repl in norm_pats: s = re.sub(pat, repl, s)
-    return s.encode('utf-8')
+    return s
 
 def _norm_content(r):
     "Normalize JSON bodies by sorting keys so semantically-equal payloads hash the same."
@@ -99,10 +101,18 @@ def _norm_content(r):
         except Exception: pass
     return c
 
+def _url(r):
+    "The URL of request `r` as cachy reports and hashes it: normalized, without any `key` query parameter"
+    return _normalize(str(r.url.copy_remove_param('key')))
+
+def _key_parts(r, is_stream=False):
+    "The normalized URL, stream flag, `accept` header and normalized body that `_key` hashes for request `r`"
+    return _url(r), is_stream, r.headers.get('accept',''), _normalize(_norm_content(r).decode('utf-8', errors='surrogateescape'))
+
 def _key(r, is_stream=False):
-    "Create a unique, deterministic id from the request `r`."
-    url = _normalize(str(r.url.copy_remove_param('key')).encode()).decode()
-    return hashlib.sha256(f"{url}{is_stream}{r.headers.get('accept','')}".encode() + _normalize(_norm_content(r))).hexdigest()[:8]
+    "Create a deterministic id from the request `r`."
+    url,s,accept,body = _key_parts(r, is_stream)
+    return hashlib.sha256(f"{url}{s}{accept}{body}".encode('utf-8', errors='surrogateescape')).hexdigest()[:8]
 
 # %% ../nbs/00_core.ipynb #4cf3ccd9
 def _is_text(res):
@@ -114,9 +124,13 @@ def _res_hdrs(res, hdrs=None):
     if hdrs: return {k:v for k,v in res.headers.items() if k.lower() in hdrs}
     return {k:v for k,v in res.headers.items() if k.lower() != 'content-encoding'}
 
+def _recordable(status):
+    "Whether a response with `status` gets recorded: 2xx, or 4xx other than the transient 408 and 429"
+    return 200 <= status < 300 or (400 <= status < 500 and status not in (408, 429))
+
 def _save_resp(key, raw, res, cfp, hdrs):
     headers = _res_hdrs(res, hdrs)
-    if not (200 <= res.status_code < 300): return headers
+    if not _recordable(res.status_code): return headers
     binary = not _is_text(res)
     content = base64.b64encode(raw).decode() if binary else raw.decode()
     _write_cache(key, content, cfp, headers, res.status_code, binary=binary)
@@ -134,21 +148,36 @@ def _resp_from_cache(c, request):
 # %% ../nbs/00_core.ipynb #4c6a4afd
 _off = ContextVar('cachy_off', default=False)
 
+def _log(**rec):
+    "Append `rec` as one JSON line to the file that `CACHY_LOG` names, if it's set"
+    if not (log := os.environ.get('CACHY_LOG')): return
+    with open(log, 'a') as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        f.write(json.dumps(rec)+'\n')
+
+def _miss(key, request, is_stream, debug):
+    "Print the key inputs of a miss when `debug`, and log them to `CACHY_LOG`"
+    if not (debug or os.environ.get('CACHY_LOG')): return
+    url,s,accept,body = _key_parts(request, is_stream)
+    if debug: print(f"🔴 MISS {key} {url} stream={s} accept={accept}\n{body.encode('utf-8', errors='backslashreplace').decode()}")
+    _log(key=key, url=url, stream=s, accept=accept, body=body)
+
 def _check(request, doms, cfp, is_stream, debug, mk_resp=None):
     if _off.get():
         if debug and debug!='miss': print(f"⚪ BYPASS {request.url}")
         return None,None
     if not _should_cache(request.url, doms):
         if debug and debug!='miss': print(f"🔴 DOM MISS {request.url}\n{doms}")
+        _log(key=None, url=_url(request))
         return None,None
     key = _key(request, is_stream=bool(is_stream))
     if c := _cache(key, cfp):
         if debug and debug!='miss': print(f"🟢 HIT {key}\n{request.content}")
         return key,(mk_resp or _resp_from_cache)(c, request)
+    _miss(key, request, bool(is_stream), debug)
     return key,None
 
-def _finalize(key, raw, res, cfp, hdrs, request, debug):
-    if debug: print(f"🔴 MISS {key}\n{request.content}")
+def _finalize(key, raw, res, cfp, hdrs, request):
     headers = _save_resp(key, raw, res, cfp, hdrs)
     return _resp_cls(request)(status_code=res.status_code, content=raw, headers=headers, request=request)
 
@@ -159,7 +188,7 @@ def _send(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
     if key is None: return self._orig_send(request, **kwargs)
     res = self._orig_send(request, **kwargs)
     raw = res.read() if not is_stream else b''.join(list(res.iter_bytes()))
-    return _finalize(key, raw, res, cfp, hdrs, request, debug)
+    return _finalize(key, raw, res, cfp, hdrs, request)
 
 async def _asend(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
     is_stream = kwargs.get("stream")
@@ -168,7 +197,7 @@ async def _asend(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
     if key is None: return await self._orig_send(request, **kwargs)
     res = await self._orig_send(request, **kwargs)
     raw = await res.aread() if not is_stream else b''.join([c async for c in res.aiter_bytes()])
-    return _finalize(key, raw, res, cfp, hdrs, request, debug)
+    return _finalize(key, raw, res, cfp, hdrs, request)
 
 # %% ../nbs/00_core.ipynb #a1340ce5
 def _req_resp_from_cache(c, request):
@@ -188,7 +217,6 @@ def _req_send(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
     if cached is not None: return cached
     if key is None: return self._orig_send(request, **kwargs)
     res = self._orig_send(request, **kwargs)
-    if debug: print(f"🔴 MISS {key}\n{body}")
     res.headers = requests.structures.CaseInsensitiveDict(_save_resp(key, res.content, res, cfp, hdrs))
     return res
 
@@ -216,7 +244,13 @@ def _apply_async_patch(cfp, doms, hdrs=None, debug=False):
 # %% ../nbs/00_core.ipynb #d5c98e90
 _cfg = None
 
-def enable_cachy(cache_dir=None, doms=doms, hdrs=None, debug=False):
+def enable_cachy(
+    cache_dir=None, # Folder for `cachy.jsonl`; default: the nearest folder at or above the cwd with a `pyproject.toml`, else the cwd
+    doms=doms, # Domains whose requests are cached
+    hdrs=None, # Response headers to store; default: all except `content-encoding`
+    debug=False # Print what happens to each request; `'miss'` prints only misses
+):
+    "Patch httpx, httpx2 and requests to serve requests to `doms` from `cachy.jsonl` and record new responses"
     global _cfg
     disable_cachy()
     if hdrs is None: hdrs=[]
