@@ -136,14 +136,17 @@ def _save_resp(key, raw, res, cfp, hdrs):
     _write_cache(key, content, cfp, headers, res.status_code, binary=binary)
     return headers
 
-def _resp_cls(request):
-    "The `Response` class of the stack `request` came from."
-    return httpx2.Response if httpx2 and isinstance(request, httpx2.Request) else httpx.Response
+def _response(request, content, headers, status_code=200, is_stream=False):
+    "Build a same-stack response with an unread stream when requested."
+    hx = httpx2 if httpx2 and isinstance(request, httpx2.Request) else httpx
+    if isinstance(content, str): content = content.encode()
+    body = dict(stream=hx.ByteStream(content)) if is_stream else dict(content=content)
+    return hx.Response(status_code=status_code, headers=headers, request=request, **body)
 
-def _resp_from_cache(c, request):
+def _resp_from_cache(c, request, is_stream=False):
     content = c['response']
     if c.get('binary'): content = base64.b64decode(content)
-    return _resp_cls(request)(status_code=c.get('status_code', 200), content=content, headers=c.get('headers'), request=request)
+    return _response(request, content, c.get('headers'), c.get('status_code', 200), is_stream)
 
 # %% ../nbs/00_core.ipynb #4c6a4afd
 _off = ContextVar('cachy_off', default=False)
@@ -173,13 +176,13 @@ def _check(request, doms, cfp, is_stream, debug, mk_resp=None):
     key = _key(request, is_stream=bool(is_stream))
     if c := _cache(key, cfp):
         if debug and debug!='miss': print(f"🟢 HIT {key}\n{request.content}")
-        return key,(mk_resp or _resp_from_cache)(c, request)
+        return key,(mk_resp or partial(_resp_from_cache, is_stream=is_stream))(c, request)
     _miss(key, request, bool(is_stream), debug)
     return key,None
 
-def _finalize(key, raw, res, cfp, hdrs, request):
+def _finalize(key, raw, res, cfp, hdrs, request, is_stream):
     headers = _save_resp(key, raw, res, cfp, hdrs)
-    return _resp_cls(request)(status_code=res.status_code, content=raw, headers=headers, request=request)
+    return _response(request, raw, headers, res.status_code, is_stream)
 
 def _send(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
     is_stream = kwargs.get("stream")
@@ -188,16 +191,17 @@ def _send(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
     if key is None: return self._orig_send(request, **kwargs)
     res = self._orig_send(request, **kwargs)
     raw = res.read() if not is_stream else b''.join(list(res.iter_bytes()))
-    return _finalize(key, raw, res, cfp, hdrs, request)
+    return _finalize(key, raw, res, cfp, hdrs, request, is_stream)
 
 async def _asend(cfp, doms, self, request, debug=False, hdrs=None, **kwargs):
     is_stream = kwargs.get("stream")
+    if not _off.get() and _should_cache(request.url, doms): await request.aread()
     key,cached = _check(request, doms, cfp, is_stream, debug)
     if cached is not None: return cached
     if key is None: return await self._orig_send(request, **kwargs)
     res = await self._orig_send(request, **kwargs)
     raw = await res.aread() if not is_stream else b''.join([c async for c in res.aiter_bytes()])
-    return _finalize(key, raw, res, cfp, hdrs, request)
+    return _finalize(key, raw, res, cfp, hdrs, request, is_stream)
 
 # %% ../nbs/00_core.ipynb #a1340ce5
 def _req_resp_from_cache(c, request):
