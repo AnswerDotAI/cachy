@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.23
+
+### New Features
+
+- Return unread streaming responses for cached and fresh stream requests, and read async request bodies before cache key generation ([#34](https://github.com/AnswerDotAI/cachy/issues/34))
+
+
 ## 0.0.22
 
 ### New Features
