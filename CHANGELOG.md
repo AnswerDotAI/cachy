@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.24
+
+### New Features
+
+- Keep messages field in pruned response payloads by adding it to `resp_keep` ([#35](https://github.com/AnswerDotAI/cachy/issues/35))
+
+
 ## 0.0.23
 
 ### New Features
