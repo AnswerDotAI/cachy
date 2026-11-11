@@ -33,7 +33,7 @@ def _cache(key, cfp):
 
 # %% ../nbs/00_core.ipynb #93c30488
 resp_norm_pats = []
-resp_keep = {'response': ['id','object','status','model','output','usage','error','incomplete_details','created_at','completed_at']}
+resp_keep = {'response': ['id','object','status','model','output','messages','usage','error','incomplete_details','created_at','completed_at']}
 
 def _prune(o):
     if isinstance(o, list): return [_prune(v) for v in o]
