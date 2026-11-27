@@ -31,6 +31,7 @@ version = {attr = "cachy.__version__"}
 include = ["cachy"]
 
 [tool.nbdev]
+to_meta = ["export"]
 allowed_metadata_keys = ['solveit']
 allowed_cell_metadata_keys = ['solveit_ai']
 custom_sidebar = false
