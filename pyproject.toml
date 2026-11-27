@@ -7,7 +7,7 @@ name = "pycachy"
 dynamic = ["version"]
 description = "Cache your API calls with a single line of code. No mocks, no fixtures. Just faster, cleaner code."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = "Apache-2.0"
 authors = [{name = "Tommy", email = "tc@answer.ai"}]
 keywords = ['nbdev', 'jupyter', 'notebook', 'python']
